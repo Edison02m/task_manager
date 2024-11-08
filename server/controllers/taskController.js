@@ -13,7 +13,7 @@ exports.getAllTasks = async (req, res) => {
 exports.createTask = async (req, res) => {
     try {
         const { title, description, due_date, priority } = req.body;
-        
+
         // Validación de datos
         if (!title || !description || !due_date || !priority) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
@@ -27,10 +27,40 @@ exports.createTask = async (req, res) => {
     }
 };
 
+// Método para actualizar todos los campos de la tarea
+exports.updateTask = async (req, res) => {
+    try {
+        const { title, description, due_date, priority, status } = req.body;
+
+        // Validación de campos
+        if (!title || !description || !due_date || !priority || !status) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        // Actualización de tarea
+        const updatedTask = await Task.update(req.params.id, {
+            title,
+            description,
+            due_date,
+            priority,
+            status,
+        });
+
+        if (!updatedTask) {
+            return res.status(404).json({ error: 'Tarea no encontrada' });
+        }
+
+        res.status(200).json(updatedTask); // Devolver la tarea actualizada
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar tarea' });
+    }
+};
 
 exports.updateTaskStatus = async (req, res) => {
     try {
-        const updatedTask = await Task.updateStatus(req.params.id, req.body.status);
+        const { status } = req.body; // Recibir el nuevo estado
+        const updatedTask = await Task.updateStatus(req.params.id, status);
         res.status(200).json(updatedTask);
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar estado de tarea' });

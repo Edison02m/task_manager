@@ -40,23 +40,6 @@ const response = await fetch(API_URL, {
   }
 };
 
-// Actualizar una tarea
-export const updateTask = async (taskId, updatedTask) => {
-  try {
-    const response = await fetch(`${API_URL}/${taskId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedTask),
-    });
-    if (!response.ok) throw new Error('Error al actualizar tarea');
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
 
 // Eliminar una tarea
 export const deleteTask = async (taskId) => {
@@ -82,4 +65,43 @@ export const getTaskById = async (taskId) => {
     console.error(error);
     throw error;
   }
+};
+
+
+// Actualizar una tarea (solo el estado 'status')
+// client/src/services/taskService.js
+
+export const updateTaskStatus = async (taskId, updatedStatus) => {
+  try {
+    const response = await fetch(`${API_URL}/${taskId}`, {
+      method: 'PATCH', // Cambiar a PATCH para actualizaciones parciales
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: updatedStatus }), // Solo enviamos el estado a actualizar
+    });
+    if (!response.ok) throw new Error('Error al actualizar estado de tarea');
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+
+
+export const updateTask = async (id, updatedTask) => {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'PUT',  // Asegúrate de que estás usando el método correcto
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updatedTask),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al actualizar la tarea: ' + response.statusText);
+  }
+
+  return response.json();  // Devuelve los datos actualizados de la tarea
 };
