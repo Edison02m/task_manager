@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { getTasks, updateTaskStatus, updateTask } from '../services/taskService';
+import { getTasks, updateTaskStatus, updateTask, deleteTask } from '../services/taskService';
 import TaskModal from '../components/Modal'; // Importar el modal
+import { TrashIcon } from '@heroicons/react/outline';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -41,7 +42,8 @@ const TaskList = () => {
   };
 
   const handleContainerClick = (event, task) => {
-    if (event.target.type !== 'checkbox') { // Verificar si el clic no fue en el checkbox
+    if (event.target.type !== 'checkbox' && !event.target.classList.contains('delete-button')) {
+      // Si el clic no fue en el checkbox ni en el botón de eliminar, abre el modal
       setSelectedTask(task);
       setIsModalOpen(true);
     }
@@ -71,6 +73,18 @@ const TaskList = () => {
     }).format(new Date(date));
   };
 
+  const handleDeleteTask = async (taskId) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
+      try {
+        await deleteTask(taskId);
+        setTasks(tasks.filter(task => task.id !== taskId));
+      } catch (error) {
+        console.error('Error al eliminar la tarea:', error);
+      }
+    }
+  };
+
+
   return (
     <div className="p-4 bg-gray-50 min-h-screen flex flex-col items-center">
       <h2 className="text-lg font-semibold mb-4 text-gray-700 text-center">Lista de Tareas</h2>
@@ -87,6 +101,16 @@ const TaskList = () => {
               onChange={(event) => handleCheckboxClick(event, task)} // Cambia el estado de la tarea sin abrir el modal
               className="absolute top-11 left-6 w-4 h-4 text-green-600 rounded focus:ring focus:ring-offset-1 focus:ring-green-400"
             />
+         <button
+  className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+  onClick={(e) => {
+    e.stopPropagation(); // Evita abrir el modal cuando se haga clic en el botón
+    handleDeleteTask(task.id);
+  }}
+>
+  <TrashIcon className="h-5 w-5" />
+</button>
+
             <div className="pl-12 pr-4">
               <h3 className="text-md font-medium text-gray-800 truncate">{task.title}</h3>
               <p className="text-gray-500 text-xs mt-1 truncate">{task.description}</p>
