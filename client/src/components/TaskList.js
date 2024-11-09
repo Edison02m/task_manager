@@ -101,24 +101,23 @@ const TaskList = () => {
               onChange={(event) => handleCheckboxClick(event, task)} // Cambia el estado de la tarea sin abrir el modal
               className="absolute top-11 left-6 w-4 h-4 text-green-600 rounded focus:ring focus:ring-offset-1 focus:ring-green-400"
             />
-         <button
-  className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
-  onClick={(e) => {
-    e.stopPropagation(); // Evita abrir el modal cuando se haga clic en el botón
-    handleDeleteTask(task.id);
-  }}
->
-  <TrashIcon className="h-5 w-5" />
-</button>
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+              onClick={(e) => {
+                e.stopPropagation(); // Evita abrir el modal cuando se haga clic en el botón
+                handleDeleteTask(task.id);
+              }}
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
 
             <div className="pl-12 pr-4">
               <h3 className="text-md font-medium text-gray-800 truncate">{task.title}</h3>
               <p className="text-gray-500 text-xs mt-1 truncate">{task.description}</p>
               <div className="flex justify-between items-center mt-3">
                 <span
-                  className={`px-2 py-0.5 rounded text-white text-xs font-medium ${
-                    task.priority === 'alta' ? 'bg-red-500' : task.priority === 'media' ? 'bg-yellow-500' : 'bg-green-500'
-                  }`}
+                  className={`px-2 py-0.5 rounded text-white text-xs font-medium ${task.priority === 'alta' ? 'bg-red-500' : task.priority === 'media' ? 'bg-yellow-500' : 'bg-green-500'
+                    }`}
                 >
                   {task.priority}
                 </span>

@@ -25,75 +25,115 @@ const CreateTaskForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <form
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="w-full max-w-2xl p-8">
+      <form 
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl space-y-6"
+        className="bg-white rounded-2xl shadow-lg p-8 space-y-8 border border-gray-100"
       >
-        <h2 className="text-2xl font-semibold text-gray-800 text-center">Crear Tarea</h2>
-
-        <div>
-          <label htmlFor="title" className="block text-sm text-gray-600">Título</label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
+        <div className="space-y-2 text-center">
+          <h2 className="text-3xl font-light text-gray-800">Nueva Tarea</h2>
+          <p className="text-gray-500 text-sm">Completa los detalles de tu nueva tarea</p>
         </div>
 
-        <div>
-          <label htmlFor="description" className="block text-sm text-gray-600">Descripción</label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            rows="3"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-6">
           <div>
-            <label htmlFor="dueDate" className="block text-sm text-gray-600">Fecha de vencimiento</label>
+            <label 
+              htmlFor="title" 
+              className="text-sm font-medium text-gray-700 block mb-1"
+            >
+              Título
+            </label>
             <input
-              id="dueDate"
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
+              placeholder="Ingresa el título de la tarea"
             />
           </div>
 
           <div>
-            <label htmlFor="priority" className="block text-sm text-gray-600">Prioridad</label>
-            <select
-              id="priority"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            <label 
+              htmlFor="description" 
+              className="text-sm font-medium text-gray-700 block mb-1"
             >
-              <option value="baja">Baja</option>
-              <option value="media">Media</option>
-              <option value="alta">Alta</option>
-            </select>
+              Descripción
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none resize-none"
+              rows="4"
+              placeholder="Describe los detalles de la tarea"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label 
+                htmlFor="dueDate" 
+                className="text-sm font-medium text-gray-700 block mb-1"
+              >
+                Fecha de vencimiento
+              </label>
+              <input
+                id="dueDate"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
+              />
+            </div>
+
+            <div>
+              <label 
+                htmlFor="priority" 
+                className="text-sm font-medium text-gray-700 block mb-1"
+              >
+                Prioridad
+              </label>
+              <select
+                id="priority"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
+              >
+                <option value="baja">Baja</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+          className="w-full py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform hover:scale-[1.02] transition-all duration-200 font-medium"
         >
           Crear Tarea
         </button>
-
-        <ToastContainer />
       </form>
+
+      <ToastContainer 
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
+  </div>
   );
 };
 
