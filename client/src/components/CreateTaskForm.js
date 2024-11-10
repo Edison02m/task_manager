@@ -25,22 +25,22 @@ const CreateTaskForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <div className="w-full max-w-2xl p-8">
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="w-full max-w-2xl p-4">
       <form 
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-lg p-8 space-y-8 border border-gray-100"
+        className="bg-white rounded-xl shadow-md p-6 space-y-1 border border-gray-100"
       >
-        <div className="space-y-2 text-center">
-          <h2 className="text-3xl font-light text-gray-800">Nueva Tarea</h2>
-          <p className="text-gray-500 text-sm">Completa los detalles de tu nueva tarea</p>
+        <div className="space-y-1 text-center mb-4">
+          <h2 className="text-2xl  text-gray-800">Nueva Tarea</h2>
+          <p className="text-gray-500 text-xs">Completa los detalles de tu nueva tarea</p>
         </div>
-
-        <div className="space-y-6">
+  
+        <div className="space-y-4">
           <div>
             <label 
               htmlFor="title" 
-              className="text-sm font-medium text-gray-700 block mb-1"
+              className="text-xs font-medium text-gray-700 block mb-1"
             >
               Título
             </label>
@@ -50,15 +50,15 @@ const CreateTaskForm = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200 outline-none text-sm"
               placeholder="Ingresa el título de la tarea"
             />
           </div>
-
+  
           <div>
             <label 
               htmlFor="description" 
-              className="text-sm font-medium text-gray-700 block mb-1"
+              className="text-xs font-medium text-gray-700 block mb-1"
             >
               Descripción
             </label>
@@ -67,17 +67,17 @@ const CreateTaskForm = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none resize-none"
-              rows="4"
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200 outline-none resize-none text-sm"
+              rows="3"
               placeholder="Describe los detalles de la tarea"
             />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label 
                 htmlFor="dueDate" 
-                className="text-sm font-medium text-gray-700 block mb-1"
+                className="text-xs font-medium text-gray-700 block mb-1"
               >
                 Fecha de vencimiento
               </label>
@@ -87,14 +87,14 @@ const CreateTaskForm = () => {
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
+                className="w-full px-3 py-2 mb-8 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200 outline-none text-sm"
               />
             </div>
-
+  
             <div>
               <label 
                 htmlFor="priority" 
-                className="text-sm font-medium text-gray-700 block mb-1"
+                className="text-xs font-medium text-gray-700 block mb-1"
               >
                 Prioridad
               </label>
@@ -102,7 +102,7 @@ const CreateTaskForm = () => {
                 id="priority"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
+                className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200 outline-none text-sm"
               >
                 <option value="baja">Baja</option>
                 <option value="media">Media</option>
@@ -111,15 +111,19 @@ const CreateTaskForm = () => {
             </div>
           </div>
         </div>
-
+  
         <button
           type="submit"
-          className="w-full py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform hover:scale-[1.02] transition-all duration-200 font-medium"
+          className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm rounded-lg 
+          hover:from-blue-600 hover:to-blue-700 transform hover:translate-y-px 
+          transition-all duration-200 font-medium shadow-sm
+          focus:ring-2 focus:ring-blue-200 focus:outline-none
+          active:from-blue-700 active:to-blue-800"
         >
           Crear Tarea
         </button>
       </form>
-
+  
       <ToastContainer 
         position="bottom-right"
         autoClose={3000}
