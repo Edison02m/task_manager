@@ -41,16 +41,27 @@ const response = await fetch(API_URL, {
 };
 
 
-// Eliminar una tarea
+ // Eliminar una tarea
 export const deleteTask = async (taskId) => {
   try {
     const response = await fetch(`${API_URL}/${taskId}`, {
       method: 'DELETE',
     });
-    if (!response.ok) throw new Error('Error al eliminar tarea');
+    
+    if (!response.ok) {
+      throw new Error('Error al eliminar tarea');
+    }
+    
+    // Si la respuesta está vacía, simplemente retornamos true
+    // indicando que la eliminación fue exitosa
+    if (response.status === 204 || response.headers.get("content-length") === "0") {
+      return true;
+    }
+
+    // Solo intentamos parsear JSON si hay contenido
     return await response.json();
   } catch (error) {
-    console.error(error);
+    console.error('Error en deleteTask:', error);
     throw error;
   }
 };
