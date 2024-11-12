@@ -27,7 +27,8 @@ const response = await fetch(API_URL, {
     title: taskData.title, 
     description: taskData.description, 
     due_date: taskData.dueDate, 
-    priority: taskData.priority
+    priority: taskData.priority,
+    contact_id: taskData.contactId, // Agregar contact_id aquí
   }),
 });
 
@@ -100,19 +101,22 @@ export const updateTaskStatus = async (taskId, updatedStatus) => {
 };
 
 
-
+// Actualizar una tarea completa
 export const updateTask = async (id, updatedTask) => {
   const response = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',  // Asegúrate de que estás usando el método correcto
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(updatedTask),
+    body: JSON.stringify({
+      ...updatedTask,
+      contact_id: updatedTask.contactId, // Agregar contact_id al actualizar
+    }),
   });
 
   if (!response.ok) {
     throw new Error('Error al actualizar la tarea: ' + response.statusText);
   }
 
-  return response.json();  // Devuelve los datos actualizados de la tarea
+  return response.json(); // Devuelve los datos actualizados de la tarea
 };

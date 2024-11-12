@@ -12,11 +12,11 @@ exports.getAllTasks = async (req, res) => {
 
 exports.createTask = async (req, res) => {
     try {
-        const { title, description, due_date, priority } = req.body;
+        const { title, description, due_date, priority, contact_id } = req.body;
 
         // Validación de datos
-        if (!title || !description || !due_date || !priority) {
-            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        if (!title || !description || !due_date || !priority || !contact_id) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios, incluyendo el contacto' });
         }
 
         const newTask = await Task.create(req.body);
@@ -27,13 +27,14 @@ exports.createTask = async (req, res) => {
     }
 };
 
+
 // Método para actualizar todos los campos de la tarea
 exports.updateTask = async (req, res) => {
     try {
-        const { title, description, due_date, priority, status } = req.body;
+        const { title, description, due_date, priority, status, contact_id } = req.body;
 
         // Validación de campos
-        if (!title || !description || !due_date || !priority || !status) {
+        if (!title || !description || !due_date || !priority || !status || !contact_id) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
 
@@ -44,6 +45,7 @@ exports.updateTask = async (req, res) => {
             due_date,
             priority,
             status,
+            contact_id,  // Asegúrate de incluir contact_id
         });
 
         if (!updatedTask) {
@@ -56,6 +58,7 @@ exports.updateTask = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar tarea' });
     }
 };
+
 
 exports.updateTaskStatus = async (req, res) => {
     try {
