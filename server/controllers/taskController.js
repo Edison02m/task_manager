@@ -15,17 +15,26 @@ exports.createTask = async (req, res) => {
         const { title, description, due_date, priority, contact_id } = req.body;
 
         // Validación de datos
-        if (!title || !description || !due_date || !priority || !contact_id) {
-            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        if (!title || !description || !due_date || !priority) {
+            return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento y prioridad son obligatorios' });
         }
 
-        const newTask = await Task.create(req.body);
+        // Si contact_id está presente, puede ser null, si no está presente, se permite.
+        const newTask = await Task.create({
+            title,
+            description,
+            due_date,
+            priority,
+            contact_id: contact_id || null,  // Si contact_id no está presente, asignamos null
+        });
+
         res.status(201).json(newTask);
     } catch (error) {
         console.error(error);  // Muestra el error en la consola para depuración
         res.status(500).json({ error: 'Error al crear tarea' });
     }
 };
+
 
 // Controlador para obtener tareas por contacto
 exports.getTasksByContact = async (req, res) => {
@@ -51,19 +60,22 @@ exports.updateTask = async (req, res) => {
         const { title, description, due_date, priority, status, contact_id } = req.body;
 
         // Validación de campos
-        if (!title || !description || !due_date || !priority || !status || !contact_id) {
-            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        if (!title || !description || !due_date || !priority || !status) {
+            return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento, prioridad y estado son obligatorios' });
         }
 
-        // Actualización de tarea
-        const updatedTask = await Task.update(req.params.id, {
+        // Preparar los datos para la actualización (si contact_id es nulo, se asigna null)
+        const updatedData = {
             title,
             description,
             due_date,
             priority,
             status,
-            contact_id,
-        });
+            contact_id: contact_id || null,  // Si contact_id no está presente, asignamos null
+        };
+
+        // Actualización de la tarea
+        const updatedTask = await Task.update(req.params.id, updatedData);
 
         if (!updatedTask) {
             return res.status(404).json({ error: 'Tarea no encontrada' });
@@ -75,6 +87,7 @@ exports.updateTask = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar tarea' });
     }
 };
+
 
 exports.updateTaskStatus = async (req, res) => {
     try {

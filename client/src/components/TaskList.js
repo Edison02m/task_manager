@@ -23,40 +23,49 @@ const [searchTerm, setSearchTerm] = useState(localStorage.getItem('searchTerm') 
 const [sortOrder, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'fecha'); // 'fecha' o 'prioridad'
 
 
-  useEffect(() => {
-    // Esta función se ejecutará cada vez que accedas a la ventana de tareas
-    const fetchTasks = async () => {
-      setIsLoading(true); // Establecer isLoading en true cuando comience la carga
-      try {
-        // Obtener las tareas
-        const response = await fetch('http://localhost:5001/api/tasks');
-        const tasksData = await response.json();
-        setTasks(tasksData);
+useEffect(() => {
+  // Esta función se ejecutará cada vez que accedas a la ventana de tareas
+  const fetchTasks = async () => {
+    setIsLoading(true); // Establecer isLoading en true cuando comience la carga
+    try {
+      // Obtener las tareas
+      const response = await fetch('http://localhost:5001/api/tasks');
+      const tasksData = await response.json();
+      
+      // Obtener el contacto asociado a cada tarea
+      const tasksWithContacts = await Promise.all(tasksData.map(async (task) => {
+        if (task.contact_id) {
+          try {
+            // Obtener el contacto por su ID
+            const contactResponse = await fetch(`http://localhost:5000/api/contacts/${task.contact_id}`);
+            const contact = await contactResponse.json();
 
-        // Obtener el contacto asociado a cada tarea
-        tasksData.forEach(async (task) => {
-          if (task.contact_id) {
-            try {
-              // Obtener el contacto por su ID
-              const contactResponse = await fetch(`http://localhost:5000/api/contacts/${task.contact_id}`);
-              const contact = await contactResponse.json();
-              // Actualizar la tarea con el nombre del contacto
-              task.contact_name = contact.name;
-              setTasks((prevTasks) => [...prevTasks]); // Actualizar el estado
-            } catch (error) {
-              console.error('Error al obtener el contacto:', error);
-            }
+            // Devolver la tarea con los datos del contacto adicionales
+            return {
+              ...task,
+              contact_name: contact.name,
+              contact_email: contact.email, // Otras propiedades del contacto
+              contact_phone: contact.phone, // Agregar teléfono u otras propiedades
+            };
+          } catch (error) {
+            console.error('Error al obtener el contacto:', error);
+            return task; // Si hay un error, retornar la tarea sin cambios
           }
-        });
-      } catch (error) {
-        console.error('Error al obtener las tareas:', error);
-      } finally {
-        setIsLoading(false); // Marcar como no cargando una vez que los datos hayan sido cargados
-      }
-    };
+        }
+        return task; // Si no hay un contacto, retornar la tarea original
+      }));
 
-    fetchTasks();
-  }, []); // Solo se ejecuta una vez al montar el componente
+      // Actualizar el estado con las tareas y los contactos
+      setTasks(tasksWithContacts);
+    } catch (error) {
+      console.error('Error al obtener las tareas:', error);
+    } finally {
+      setIsLoading(false); // Marcar como no cargando una vez que los datos hayan sido cargados
+    }
+  };
+
+  fetchTasks();
+}, []); // Solo se ejecuta una vez al montar el componente
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -410,11 +419,28 @@ const [sortOrder, setSortOrder] = useState(localStorage.getItem('sortOrder') || 
                           {formatDate(task.due_date)}
                         </span>
 
-                        {/* Contacto asignado */}
-                        <span className="inline-flex items-center text-gray-600 text-sm">
-                          <UserCircleIcon className="w-4 h-4 mr-1" />
-                          {task.contact_name || "Sin asignar"}
-                        </span>
+                        <div className="relative group">
+  {/* Contacto asignado */}
+  {task.contact_id && task.contact_name && (
+    <span className="inline-flex items-center text-gray-600 text-sm cursor-pointer">
+      <UserCircleIcon className="w-4 h-4 mr-1" />
+      {task.contact_name}
+    </span>
+  )}
+
+  {/* Tarjeta emergente con la información del contacto */}
+  {task.contact_id && task.contact_name && (
+    <div className="absolute left-40  -bottom-2 w-64 p-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <h4 className="font-semibold text-gray-800">{task.contact_name}</h4>
+      <p className="text-gray-600">Email: {task.contact_email}</p>
+      <p className="text-gray-600">Teléfono: {task.contact_phone}</p>
+      <p className="text-gray-600">Dirección: {task.contact_address}</p>
+    </div>
+  )}
+</div>
+
+
+
                       </div>
                     </div>
 

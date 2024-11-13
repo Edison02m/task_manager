@@ -41,7 +41,7 @@ const TaskModal = ({ isModalOpen, selectedTask, setSelectedTask, handleCloseModa
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">Fecha de vencimiento</label>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Fecha</label>
               <input
                 type="date"
                 value={formattedDate}

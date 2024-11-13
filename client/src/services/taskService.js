@@ -16,18 +16,26 @@ export const getTasks = async () => {
 
 export const createTask = async (taskData) => {
   try {
+    // Crear un objeto de datos con las propiedades requeridas
+    const taskPayload = {
+      title: taskData.title, 
+      description: taskData.description, 
+      due_date: taskData.dueDate, 
+      priority: taskData.priority,
+    };
+
+    // Solo agregar contact_id si está presente
+    if (taskData.contact_id) {
+      taskPayload.contact_id = taskData.contact_id;
+    }
+
+    // Enviar la solicitud POST
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        title: taskData.title, 
-        description: taskData.description, 
-        due_date: taskData.dueDate, 
-        priority: taskData.priority,
-        contact_id: taskData.contact_id, // Verifica que este campo sea 'contact_id'
-      }),
+      body: JSON.stringify(taskPayload),
     });
 
     if (!response.ok) {
@@ -40,6 +48,7 @@ export const createTask = async (taskData) => {
     throw error;
   }
 };
+
 
 
 
