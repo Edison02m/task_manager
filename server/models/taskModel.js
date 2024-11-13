@@ -1,3 +1,4 @@
+// server/models/taskModel.js
 const db = require('../config/db');
 
 const Task = {
@@ -32,6 +33,15 @@ const Task = {
 
   // Eliminar tarea
   delete: async (id) => db.query('DELETE FROM tasks WHERE id = $1', [id]),
+
+  // Obtener tareas por contacto (nuevo método)
+  getTasksByContact: async (contact_id) => {
+    const result = await db.query(
+        'SELECT * FROM tasks WHERE contact_id = $1',  // Consulta para obtener tareas por contacto
+        [contact_id]
+    );
+    return result.rows;
+},
 };
 
 module.exports = Task;

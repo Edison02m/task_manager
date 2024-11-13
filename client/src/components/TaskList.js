@@ -4,6 +4,7 @@ import TaskModal from '../components/Modal';
 import { TrashIcon } from '@heroicons/react/outline';
 import { toast } from 'react-toastify';
 import Header from './Header';
+import {  UserCircleIcon, CalendarIcon } from 'lucide-react';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -19,8 +20,39 @@ const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    // Esta función se ejecutará cada vez que accedas a la ventana de tareas
+    const fetchTasks = async () => {
+      setIsLoading(true); // Establecer isLoading en true cuando comience la carga
+      try {
+        // Obtener las tareas
+        const response = await fetch('http://localhost:5001/api/tasks');
+        const tasksData = await response.json();
+        setTasks(tasksData);
+
+        // Obtener el contacto asociado a cada tarea
+        tasksData.forEach(async (task) => {
+          if (task.contact_id) {
+            try {
+              // Obtener el contacto por su ID
+              const contactResponse = await fetch(`http://localhost:5000/api/contacts/${task.contact_id}`);
+              const contact = await contactResponse.json();
+              // Actualizar la tarea con el nombre del contacto
+              task.contact_name = contact.name;
+              setTasks((prevTasks) => [...prevTasks]); // Actualizar el estado
+            } catch (error) {
+              console.error('Error al obtener el contacto:', error);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error al obtener las tareas:', error);
+      } finally {
+        setIsLoading(false); // Marcar como no cargando una vez que los datos hayan sido cargados
+      }
+    };
+
     fetchTasks();
-  }, []);
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   useEffect(() => {
     applyFilters();
@@ -166,19 +198,6 @@ const TaskList = () => {
     }).format(new Date(date));
   };
 
-  const fetchTasks = async () => {
-    try {
-      setIsLoading(true);
-      const tasksData = await getTasks();
-      setTasks(tasksData);
-      setFilteredTasks(tasksData);
-    } catch (error) {
-      console.error('Error al obtener tareas:', error);
-      toast.error('No se pudieron cargar las tareas');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // ... (mantener el resto de las funciones existentes sin cambios)
 
@@ -191,15 +210,15 @@ const TaskList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
       <Header tasks={tasks} />
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
           Lista de Tareas
         </h2>
 
         {/* Filtros */}
-        <div className="mb-6 space-y-4">
+        <div className="mb-8 bg-white rounded-xl shadow-sm p-6 space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Barra de búsqueda */}
             <div className="flex-1">
@@ -208,15 +227,15 @@ const TaskList = () => {
                 placeholder="Buscar tareas..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50"
               />
             </div>
 
-            {/* Filtro de Prioridad */}
+            {/* Filtros optimizados */}
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
               <option value="todas">Todas las prioridades</option>
               <option value="alta">Alta</option>
@@ -224,11 +243,10 @@ const TaskList = () => {
               <option value="baja">Baja</option>
             </select>
 
-            {/* Filtro de Fecha */}
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
               <option value="todas">Todas las fechas</option>
               <option value="hoy">Hoy</option>
@@ -238,10 +256,12 @@ const TaskList = () => {
             </select>
           </div>
 
-          {/* Resumen de filtros activos */}
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span>Mostrando:</span>
-            {filteredTasks.length} de {tasks.length} tareas
+          {/* Resumen de filtros mejorado */}
+          <div className="flex items-center gap-2 text-sm text-gray-600 border-t pt-4">
+            <span className="font-medium">Tareas encontradas:</span>
+            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              {filteredTasks.length} de {tasks.length}
+            </span>
             {(priorityFilter !== 'todas' || dateFilter !== 'todas' || searchTerm) && (
               <button
                 onClick={() => {
@@ -249,7 +269,7 @@ const TaskList = () => {
                   setDateFilter('todas');
                   setSearchTerm('');
                 }}
-                className="ml-2 text-blue-500 hover:text-blue-600"
+                className="ml-auto text-blue-600 hover:text-blue-700 font-medium transition-colors"
               >
                 Limpiar filtros
               </button>
@@ -268,38 +288,43 @@ const TaskList = () => {
             {filteredTasks.map((task) => (
               <div
                 key={task.id}
-                className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 overflow-hidden"
+                className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-100 overflow-hidden"
                 onClick={(event) => handleContainerClick(event, task)}
               >
-                {/* ... (mantener el contenido existente de la tarjeta de tarea) */}
                 <div className="relative p-5">
                   <div className="flex items-start space-x-4">
+                    {/* Checkbox con mejor estilo */}
                     <div className="flex-shrink-0 pt-1">
                       <input
                         type="checkbox"
                         checked={task.status === 'Hecho'}
                         onChange={(event) => handleCheckboxClick(event, task)}
-                        className="w-5 h-5 rounded-full border-2 border-gray-300 text-green-500 cursor-pointer"
+                        className="w-5 h-5 rounded-md border-2 border-gray-300 text-blue-500 cursor-pointer focus:ring-blue-500"
                       />
                     </div>
 
                     <div className="flex-grow min-w-0">
-                      <h3 className={`text-base font-medium mb-1 ${task.status === 'Hecho'
-                        ? 'text-gray-400 line-through'
-                        : 'text-gray-900'
-                        } truncate`}>
+                      {/* Título y descripción */}
+                      <h3 className={`text-lg font-semibold mb-2 ${
+                        task.status === 'Hecho'
+                          ? 'text-gray-400 line-through'
+                          : 'text-gray-900'
+                      }`}>
                         {task.title}
                       </h3>
-                      <p className={`${task.status === 'Hecho'
-                        ? 'text-gray-400'
-                        : 'text-gray-600'
-                        } text-sm truncate`}>
+                      <p className={`${
+                        task.status === 'Hecho'
+                          ? 'text-gray-400'
+                          : 'text-gray-600'
+                      } text-sm mb-3`}>
                         {task.description}
                       </p>
 
-                      <div className="flex items-center space-x-4 mt-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                        ${task.priority === 'alta'
+                      {/* Metadatos mejorados */}
+                      <div className="flex flex-wrap items-center gap-4">
+                        {/* Prioridad */}
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium capitalize
+                          ${task.priority === 'alta'
                             ? 'bg-red-100 text-red-700'
                             : task.priority === 'media'
                               ? 'bg-yellow-100 text-yellow-700'
@@ -307,15 +332,25 @@ const TaskList = () => {
                           }`}>
                           {task.priority}
                         </span>
-                        <span className="text-gray-500 text-sm">
+
+                        {/* Fecha con icono */}
+                        <span className="inline-flex items-center text-gray-500 text-sm">
+                          <CalendarIcon className="w-4 h-4 mr-1" />
                           {formatDate(task.due_date)}
+                        </span>
+
+                        {/* Contacto asignado */}
+                        <span className="inline-flex items-center text-gray-600 text-sm">
+                          <UserCircleIcon className="w-4 h-4 mr-1" />
+                          {task.contact_name || "Sin asignar"}
                         </span>
                       </div>
                     </div>
 
+                    {/* Botón eliminar mejorado */}
                     <button
                       className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                      text-gray-400 hover:text-red-500 focus:outline-none focus:text-red-500"
+                        p-2 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
                       onClick={(e) => handleDeleteTask(e, task.id)}
                       disabled={isDeleting}
                     >

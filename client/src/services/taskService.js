@@ -1,6 +1,6 @@
 // client/src/services/taskServices.js
 
-const API_URL = 'http://localhost:5000/api/tasks'; // URL base de la API
+const API_URL = 'http://localhost:5001/api/tasks'; // URL base de la API
 
 // Obtener todas las tareas
 export const getTasks = async () => {
@@ -14,32 +14,33 @@ export const getTasks = async () => {
   }
 };
 
-// Crear una nueva tarea
 export const createTask = async (taskData) => {
   try {
-    // taskService.js (al enviar la tarea)
-const response = await fetch(API_URL, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    title: taskData.title, 
-    description: taskData.description, 
-    due_date: taskData.dueDate, 
-    priority: taskData.priority,
-    contact_id: taskData.contactId, // Agregar contact_id aquí
-  }),
-});
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: taskData.title, 
+        description: taskData.description, 
+        due_date: taskData.dueDate, 
+        priority: taskData.priority,
+        contact_id: taskData.contact_id, // Verifica que este campo sea 'contact_id'
+      }),
+    });
 
+    if (!response.ok) {
+      throw new Error('Error al crear la tarea');
+    }
 
-    if (!response.ok) throw new Error('Error al crear tarea');
-    return await response.json();  // Retorna la tarea creada
+    return await response.json();
   } catch (error) {
-    console.error(error);
+    console.error("Error en el servicio:", error);
     throw error;
   }
 };
+
 
 
  // Eliminar una tarea
@@ -119,4 +120,15 @@ export const updateTask = async (id, updatedTask) => {
   }
 
   return response.json(); // Devuelve los datos actualizados de la tarea
+};
+
+export const getTasksByContact = async (contactId) => {
+  try {
+      const response = await fetch(`http://localhost:5000/api/tasks/contact/${contactId}`);
+      if (!response.ok) throw new Error('Error al obtener tareas del contacto');
+      return await response.json();
+  } catch (error) {
+      console.error(error);
+      throw error;
+  }
 };
