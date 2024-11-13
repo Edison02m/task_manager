@@ -4,7 +4,7 @@ import TaskModal from '../components/Modal';
 import { TrashIcon } from '@heroicons/react/outline';
 import { toast } from 'react-toastify';
 import Header from './Header';
-import {  UserCircleIcon, CalendarIcon } from 'lucide-react';
+import { UserCircleIcon, CalendarIcon } from 'lucide-react';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -15,57 +15,59 @@ const TaskList = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [allContacts, setAllContacts] = useState([]);
   // Estados para los filtros
-// Estados para los filtros
-const [priorityFilter, setPriorityFilter] = useState(localStorage.getItem('priorityFilter') || 'todas');
-const [dateFilter, setDateFilter] = useState(localStorage.getItem('dateFilter') || 'todas');
-const [searchTerm, setSearchTerm] = useState(localStorage.getItem('searchTerm') || '');
-// Estado para el orden de las tareas
-const [sortOrder, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'fecha'); // 'fecha' o 'prioridad'
+  // Estados para los filtros
+  const [priorityFilter, setPriorityFilter] = useState(localStorage.getItem('priorityFilter') || 'todas');
+  const [dateFilter, setDateFilter] = useState(localStorage.getItem('dateFilter') || 'todas');
+  const [searchTerm, setSearchTerm] = useState(localStorage.getItem('searchTerm') || '');
+  // Estado para el orden de las tareas
+  const [sortOrder, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'fecha'); // 'fecha' o 'prioridad'
+
+  const [isHoveringContact, setIsHoveringContact] = useState(false);
 
 
-useEffect(() => {
-  // Esta función se ejecutará cada vez que accedas a la ventana de tareas
-  const fetchTasks = async () => {
-    setIsLoading(true); // Establecer isLoading en true cuando comience la carga
-    try {
-      // Obtener las tareas
-      const response = await fetch('http://localhost:5001/api/tasks');
-      const tasksData = await response.json();
-      
-      // Obtener el contacto asociado a cada tarea
-      const tasksWithContacts = await Promise.all(tasksData.map(async (task) => {
-        if (task.contact_id) {
-          try {
-            // Obtener el contacto por su ID
-            const contactResponse = await fetch(`http://localhost:5000/api/contacts/${task.contact_id}`);
-            const contact = await contactResponse.json();
+  useEffect(() => {
+    // Esta función se ejecutará cada vez que accedas a la ventana de tareas
+    const fetchTasks = async () => {
+      setIsLoading(true); // Establecer isLoading en true cuando comience la carga
+      try {
+        // Obtener las tareas
+        const response = await fetch('http://localhost:5001/api/tasks');
+        const tasksData = await response.json();
 
-            // Devolver la tarea con los datos del contacto adicionales
-            return {
-              ...task,
-              contact_name: contact.name,
-              contact_email: contact.email, // Otras propiedades del contacto
-              contact_phone: contact.phone, // Agregar teléfono u otras propiedades
-            };
-          } catch (error) {
-            console.error('Error al obtener el contacto:', error);
-            return task; // Si hay un error, retornar la tarea sin cambios
+        // Obtener el contacto asociado a cada tarea
+        const tasksWithContacts = await Promise.all(tasksData.map(async (task) => {
+          if (task.contact_id) {
+            try {
+              // Obtener el contacto por su ID
+              const contactResponse = await fetch(`http://localhost:5000/api/contacts/${task.contact_id}`);
+              const contact = await contactResponse.json();
+
+              // Devolver la tarea con los datos del contacto adicionales
+              return {
+                ...task,
+                contact_name: contact.name,
+                contact_email: contact.email, // Otras propiedades del contacto
+                contact_phone: contact.phone, // Agregar teléfono u otras propiedades
+              };
+            } catch (error) {
+              console.error('Error al obtener el contacto:', error);
+              return task; // Si hay un error, retornar la tarea sin cambios
+            }
           }
-        }
-        return task; // Si no hay un contacto, retornar la tarea original
-      }));
+          return task; // Si no hay un contacto, retornar la tarea original
+        }));
 
-      // Actualizar el estado con las tareas y los contactos
-      setTasks(tasksWithContacts);
-    } catch (error) {
-      console.error('Error al obtener las tareas:', error);
-    } finally {
-      setIsLoading(false); // Marcar como no cargando una vez que los datos hayan sido cargados
-    }
-  };
+        // Actualizar el estado con las tareas y los contactos
+        setTasks(tasksWithContacts);
+      } catch (error) {
+        console.error('Error al obtener las tareas:', error);
+      } finally {
+        setIsLoading(false); // Marcar como no cargando una vez que los datos hayan sido cargados
+      }
+    };
 
-  fetchTasks();
-}, []); // Solo se ejecuta una vez al montar el componente
+    fetchTasks();
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -77,7 +79,7 @@ useEffect(() => {
         console.error('Error al obtener los contactos:', error);
       }
     };
-  
+
     fetchContacts();
   }, []);
 
@@ -97,7 +99,7 @@ useEffect(() => {
     // Filtro por fecha
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     switch (dateFilter) {
       case 'hoy':
         filtered = filtered.filter(task => {
@@ -198,30 +200,30 @@ useEffect(() => {
     try {
       // Actualiza la tarea a través del API
       const updatedTaskData = await updateTask(updatedTask.id, updatedTask);
-  
+
       // Verifica los datos actualizados
       console.log('Tarea actualizada:', updatedTaskData);  // Verifica si la tarea se actualizó correctamente
-  
+
       // Actualiza el estado de las tareas
       setTasks(prevTasks =>
         prevTasks.map(t =>
           t.id === updatedTaskData.id ? updatedTaskData : t
         )
       );
-  
+
       // Cierra el modal y muestra el mensaje de éxito
       setIsModalOpen(false);
       toast.success('Tarea actualizada exitosamente');
-  
+
       // Recarga la página para reflejar los cambios inmediatamente
       window.location.reload();
-      
+
     } catch (error) {
       console.error('Error al actualizar la tarea:', error);
       toast.error('Error al actualizar la tarea');
     }
   };
-  
+
 
   const handleDeleteTask = async (event, taskId) => {
     event.preventDefault();
@@ -291,7 +293,7 @@ useEffect(() => {
           <div className="flex flex-col md:flex-row gap-4">
             {/* Barra de búsqueda */}
             <div className="flex-1">
-             <input
+              <input
                 type="text"
                 placeholder="Buscar tareas..."
                 value={searchTerm}
@@ -385,18 +387,16 @@ useEffect(() => {
 
                     <div className="flex-grow min-w-0">
                       {/* Título y descripción */}
-                      <h3 className={`text-lg font-semibold mb-2 ${
-                        task.status === 'Hecho'
+                      <h3 className={`text-lg font-semibold mb-2 ${task.status === 'Hecho'
                           ? 'text-gray-400 line-through'
                           : 'text-gray-900'
-                      }`}>
+                        }`}>
                         {task.title}
                       </h3>
-                      <p className={`${
-                        task.status === 'Hecho'
+                      <p className={`${task.status === 'Hecho'
                           ? 'text-gray-400'
                           : 'text-gray-600'
-                      } text-sm mb-3`}>
+                        } text-sm mb-3`}>
                         {task.description}
                       </p>
 
@@ -419,28 +419,24 @@ useEffect(() => {
                           {formatDate(task.due_date)}
                         </span>
 
-                        <div className="relative group">
-  {/* Contacto asignado */}
-  {task.contact_id && task.contact_name && (
-    <span className="inline-flex items-center text-gray-600 text-sm cursor-pointer">
-      <UserCircleIcon className="w-4 h-4 mr-1" />
-      {task.contact_name}
-    </span>
-  )}
+                        <div
+                          className="flex items-center gap-2 text-sm text-gray-600"
+                          onMouseEnter={() => setIsHoveringContact(true)}
+                          onMouseLeave={() => setIsHoveringContact(false)}
+                        >
+                          <UserCircleIcon className="h-5 w-5 text-gray-500" />
+                          <span>{task.contact_name}</span>
+                        </div>
 
-  {/* Tarjeta emergente con la información del contacto */}
-  {task.contact_id && task.contact_name && (
-    <div className="absolute left-40  -bottom-2 w-64 p-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-      <h4 className="font-semibold text-gray-800">{task.contact_name}</h4>
-      <p className="text-gray-600">Email: {task.contact_email}</p>
-      <p className="text-gray-600">Teléfono: {task.contact_phone}</p>
-      <p className="text-gray-600">Dirección: {task.contact_address}</p>
-    </div>
-  )}
-</div>
+                        {/* Mostrar la tarjeta de información del contacto solo cuando esté en hover */}
+                        {isHoveringContact && (
+                          <div className="absolute bottom-4 bg-white p-4 shadow-lg rounded-xl z-10 transform translate-x-80">
 
-
-
+                            <p><strong>Nombre:</strong> {task.contact_name}</p>
+                            <p><strong>Email:</strong> {task.contact_email}</p>
+                            <p><strong>Teléfono:</strong> {task.contact_phone}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -460,14 +456,14 @@ useEffect(() => {
           </div>
         )}
 
-      <TaskModal
-  isModalOpen={isModalOpen}
-  selectedTask={selectedTask}
-  setSelectedTask={setSelectedTask}
-  handleCloseModal={handleCloseModal}
-  handleTaskUpdate={handleTaskUpdate}
-  allContacts={allContacts} // Pasa los contactos aquí
-/>
+        <TaskModal
+          isModalOpen={isModalOpen}
+          selectedTask={selectedTask}
+          setSelectedTask={setSelectedTask}
+          handleCloseModal={handleCloseModal}
+          handleTaskUpdate={handleTaskUpdate}
+          allContacts={allContacts} // Pasa los contactos aquí
+        />
       </div>
     </div>
   );
