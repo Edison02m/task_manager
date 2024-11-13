@@ -15,9 +15,13 @@ const TaskList = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [allContacts, setAllContacts] = useState([]);
   // Estados para los filtros
-  const [priorityFilter, setPriorityFilter] = useState('todas');
-  const [dateFilter, setDateFilter] = useState('todas');
-  const [searchTerm, setSearchTerm] = useState('');
+// Estados para los filtros
+const [priorityFilter, setPriorityFilter] = useState(localStorage.getItem('priorityFilter') || 'todas');
+const [dateFilter, setDateFilter] = useState(localStorage.getItem('dateFilter') || 'todas');
+const [searchTerm, setSearchTerm] = useState(localStorage.getItem('searchTerm') || '');
+// Estado para el orden de las tareas
+const [sortOrder, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'fecha'); // 'fecha' o 'prioridad'
+
 
   useEffect(() => {
     // Esta función se ejecutará cada vez que accedas a la ventana de tareas
@@ -71,7 +75,7 @@ const TaskList = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [tasks, priorityFilter, dateFilter, searchTerm]);
+  }, [tasks, priorityFilter, dateFilter, searchTerm, sortOrder]);
 
   const applyFilters = () => {
     let filtered = [...tasks];
@@ -127,7 +131,20 @@ const TaskList = () => {
       );
     }
 
+    // Ordenar las tareas según el tipo de orden seleccionado
+    if (sortOrder === 'fecha') {
+      filtered.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+    } else if (sortOrder === 'prioridad') {
+      const priorityOrder = { 'alta': 1, 'media': 2, 'baja': 3 };
+      filtered.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    }
+
     setFilteredTasks(filtered);
+  };
+
+  const handleSortChange = (event) => {
+    setSortOrder(event.target.value);
+    localStorage.setItem('sortOrder', event.target.value); // Guardar el filtro en localStorage
   };
 
   const handleStatusChange = async (task) => {
@@ -226,6 +243,21 @@ const TaskList = () => {
     }).format(new Date(date));
   };
 
+  const handlePriorityChange = (event) => {
+    setPriorityFilter(event.target.value);
+    localStorage.setItem('priorityFilter', event.target.value); // Guardar el filtro en localStorage
+  };
+
+  const handleDateChange = (event) => {
+    setDateFilter(event.target.value);
+    localStorage.setItem('dateFilter', event.target.value); // Guardar el filtro en localStorage
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    localStorage.setItem('searchTerm', event.target.value); // Guardar el término de búsqueda en localStorage
+  };
+
 
   // ... (mantener el resto de las funciones existentes sin cambios)
 
@@ -250,19 +282,19 @@ const TaskList = () => {
           <div className="flex flex-col md:flex-row gap-4">
             {/* Barra de búsqueda */}
             <div className="flex-1">
-              <input
+             <input
                 type="text"
                 placeholder="Buscar tareas..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50"
               />
             </div>
 
-            {/* Filtros optimizados */}
+            {/* Filtros */}
             <select
               value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value)}
+              onChange={handlePriorityChange}
               className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
               <option value="todas">Todas las prioridades</option>
@@ -273,7 +305,7 @@ const TaskList = () => {
 
             <select
               value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
+              onChange={handleDateChange}
               className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
               <option value="todas">Todas las fechas</option>
@@ -282,6 +314,17 @@ const TaskList = () => {
               <option value="mes">Este mes</option>
               <option value="vencidas">Vencidas</option>
             </select>
+
+            {/* Orden */}
+            <select
+              value={sortOrder}
+              onChange={handleSortChange}
+              className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="fecha">Ordenar por Fecha</option>
+              <option value="prioridad">Ordenar por Prioridad</option>
+            </select>
+
           </div>
 
           {/* Resumen de filtros mejorado */}
