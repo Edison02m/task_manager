@@ -388,14 +388,14 @@ const TaskList = () => {
                     <div className="flex-grow min-w-0">
                       {/* Título y descripción */}
                       <h3 className={`text-lg font-semibold mb-2 ${task.status === 'Hecho'
-                          ? 'text-gray-400 line-through'
-                          : 'text-gray-900'
+                        ? 'text-gray-400 line-through'
+                        : 'text-gray-900'
                         }`}>
                         {task.title}
                       </h3>
                       <p className={`${task.status === 'Hecho'
-                          ? 'text-gray-400'
-                          : 'text-gray-600'
+                        ? 'text-gray-400'
+                        : 'text-gray-600'
                         } text-sm mb-3`}>
                         {task.description}
                       </p>
@@ -419,24 +419,30 @@ const TaskList = () => {
                           {formatDate(task.due_date)}
                         </span>
 
-                        <div
-                          className="flex items-center gap-2 text-sm text-gray-600"
-                          onMouseEnter={() => setIsHoveringContact(true)}
-                          onMouseLeave={() => setIsHoveringContact(false)}
-                        >
-                          <UserCircleIcon className="h-5 w-5 text-gray-500" />
-                          <span>{task.contact_name}</span>
+                        <div className="relative group">
+                          {/* Contacto asignado */}
+                          {task.contact_id && task.contact_name && (
+                            <div
+                              className="flex items-center gap-2 text-sm text-gray-600"
+                              onMouseEnter={() => setIsHoveringContact(true)}
+                              onMouseLeave={() => setIsHoveringContact(false)}
+                            >
+                              <UserCircleIcon className="h-5 w-5 text-gray-500" />
+                              <span>{task.contact_name}</span>
+                            </div>
+                          )}
+
+                          {/* Mostrar la tarjeta de información del contacto solo cuando esté en hover */}
+                          {isHoveringContact && task.contact_name && (
+                            <div className="absolute top-0 right-0 w-64 p-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <p><strong>Nombre:</strong> {task.contact_name}</p>
+                              <p><strong>Email:</strong> {task.contact_email}</p>
+                              <p><strong>Teléfono:</strong> {task.contact_phone}</p>
+                              <p><strong>Dirección:</strong> {task.contact_address}</p>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Mostrar la tarjeta de información del contacto solo cuando esté en hover */}
-                        {isHoveringContact && (
-                          <div className="absolute bottom-4 bg-white p-4 shadow-lg rounded-xl z-10 transform translate-x-80">
-
-                            <p><strong>Nombre:</strong> {task.contact_name}</p>
-                            <p><strong>Email:</strong> {task.contact_email}</p>
-                            <p><strong>Teléfono:</strong> {task.contact_phone}</p>
-                          </div>
-                        )}
                       </div>
                     </div>
 
