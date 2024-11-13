@@ -24,6 +24,16 @@ const TaskList = () => {
 
   const [isHoveringContact, setIsHoveringContact] = useState(false);
 
+  const [hoveredTaskId, setHoveredTaskId] = useState(null);
+
+  // Funciones para manejar el hover
+  const handleMouseEnter = (taskId) => {
+    setHoveredTaskId(taskId); // Establecer el ID de la tarea en hover
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredTaskId(null); // Restablecer el estado cuando el hover se quita
+  };
 
   useEffect(() => {
     // Esta función se ejecutará cada vez que accedas a la ventana de tareas
@@ -281,7 +291,7 @@ const TaskList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl">
       <Header tasks={tasks} />
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
@@ -420,28 +430,28 @@ const TaskList = () => {
                         </span>
 
                         <div className="relative group">
-                          {/* Contacto asignado */}
-                          {task.contact_id && task.contact_name && (
-                            <div
-                              className="flex items-center gap-2 text-sm text-gray-600"
-                              onMouseEnter={() => setIsHoveringContact(true)}
-                              onMouseLeave={() => setIsHoveringContact(false)}
-                            >
-                              <UserCircleIcon className="h-5 w-5 text-gray-500" />
-                              <span>{task.contact_name}</span>
-                            </div>
-                          )}
+      {/* Contacto asignado */}
+      {task.contact_id && task.contact_name && (
+        <div
+          className="flex items-center gap-2 text-sm text-gray-600"
+          onMouseEnter={() => handleMouseEnter(task.id)} // Pasar el ID de la tarea al entrar el mouse
+          onMouseLeave={handleMouseLeave}
+        >
+          <UserCircleIcon className="h-5 w-5 text-gray-500" />
+          <span>{task.contact_name}</span>
+        </div>
+      )}
 
-                          {/* Mostrar la tarjeta de información del contacto solo cuando esté en hover */}
-                          {isHoveringContact && task.contact_name && (
-                            <div className="absolute top-0 right-0 w-64 p-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              <p><strong>Nombre:</strong> {task.contact_name}</p>
-                              <p><strong>Email:</strong> {task.contact_email}</p>
-                              <p><strong>Teléfono:</strong> {task.contact_phone}</p>
-                              <p><strong>Dirección:</strong> {task.contact_address}</p>
-                            </div>
-                          )}
-                        </div>
+      {/* Mostrar la tarjeta de información del contacto solo cuando esté en hover */}
+      {hoveredTaskId === task.id && task.contact_name && (
+        <div className="absolute w-64 -bottom-2 bg-white p-4 shadow-lg rounded-xl z-10 transform translate-x-40 text-sm">
+          <p><strong>Nombre:</strong> {task.contact_name}</p>
+          <p><strong>Email:</strong> {task.contact_email}</p>
+          <p><strong>Teléfono:</strong> {task.contact_phone}</p>
+          <p><strong>Dirección:</strong> {task.contact_address}</p>
+        </div>
+      )}
+    </div>
 
                       </div>
                     </div>
