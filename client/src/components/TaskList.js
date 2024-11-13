@@ -13,7 +13,7 @@ const TaskList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+  const [allContacts, setAllContacts] = useState([]);
   // Estados para los filtros
   const [priorityFilter, setPriorityFilter] = useState('todas');
   const [dateFilter, setDateFilter] = useState('todas');
@@ -53,6 +53,21 @@ const TaskList = () => {
 
     fetchTasks();
   }, []); // Solo se ejecuta una vez al montar el componente
+
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/contacts');
+        const contactsData = await response.json();
+        setAllContacts(contactsData);
+      } catch (error) {
+        console.error('Error al obtener los contactos:', error);
+      }
+    };
+  
+    fetchContacts();
+  }, []);
+
 
   useEffect(() => {
     applyFilters();
@@ -155,19 +170,32 @@ const TaskList = () => {
 
   const handleTaskUpdate = async (updatedTask) => {
     try {
+      // Actualiza la tarea a través del API
       const updatedTaskData = await updateTask(updatedTask.id, updatedTask);
+  
+      // Verifica los datos actualizados
+      console.log('Tarea actualizada:', updatedTaskData);  // Verifica si la tarea se actualizó correctamente
+  
+      // Actualiza el estado de las tareas
       setTasks(prevTasks =>
         prevTasks.map(t =>
           t.id === updatedTaskData.id ? updatedTaskData : t
         )
       );
+  
+      // Cierra el modal y muestra el mensaje de éxito
       setIsModalOpen(false);
       toast.success('Tarea actualizada exitosamente');
+  
+      // Recarga la página para reflejar los cambios inmediatamente
+      window.location.reload();
+      
     } catch (error) {
       console.error('Error al actualizar la tarea:', error);
       toast.error('Error al actualizar la tarea');
     }
   };
+  
 
   const handleDeleteTask = async (event, taskId) => {
     event.preventDefault();
@@ -363,13 +391,14 @@ const TaskList = () => {
           </div>
         )}
 
-        <TaskModal
-          isModalOpen={isModalOpen}
-          selectedTask={selectedTask}
-          setSelectedTask={setSelectedTask}
-          handleCloseModal={handleCloseModal}
-          handleTaskUpdate={handleTaskUpdate}
-        />
+      <TaskModal
+  isModalOpen={isModalOpen}
+  selectedTask={selectedTask}
+  setSelectedTask={setSelectedTask}
+  handleCloseModal={handleCloseModal}
+  handleTaskUpdate={handleTaskUpdate}
+  allContacts={allContacts} // Pasa los contactos aquí
+/>
       </div>
     </div>
   );

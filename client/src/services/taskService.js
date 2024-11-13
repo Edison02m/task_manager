@@ -101,7 +101,6 @@ export const updateTaskStatus = async (taskId, updatedStatus) => {
   }
 };
 
-
 // Actualizar una tarea completa
 export const updateTask = async (id, updatedTask) => {
   const response = await fetch(`${API_URL}/${id}`, {
@@ -111,7 +110,7 @@ export const updateTask = async (id, updatedTask) => {
     },
     body: JSON.stringify({
       ...updatedTask,
-      contact_id: updatedTask.contactId, // Agregar contact_id al actualizar
+      contact_id: updatedTask.contact_id, // Asegúrate de usar contact_id (con guion bajo)
     }),
   });
 
@@ -121,6 +120,7 @@ export const updateTask = async (id, updatedTask) => {
 
   return response.json(); // Devuelve los datos actualizados de la tarea
 };
+
 
 export const getTasksByContact = async (contactId) => {
   try {
