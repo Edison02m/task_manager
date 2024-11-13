@@ -57,7 +57,8 @@ const TaskList = () => {
                 ...task,
                 contact_name: contact.name,
                 contact_email: contact.email, // Otras propiedades del contacto
-                contact_phone: contact.phone, // Agregar teléfono u otras propiedades
+                contact_phone: contact.phone,
+                contact_address: contact.address, // Agregar teléfono u otras propiedades
               };
             } catch (error) {
               console.error('Error al obtener el contacto:', error);
