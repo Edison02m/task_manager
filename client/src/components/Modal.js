@@ -11,9 +11,8 @@ const TaskModal = ({
 }) => {
   if (!isModalOpen || !selectedTask) return null;
 
-  // Asegurarse de que la fecha esté en el formato correcto (YYYY-MM-DD)
   const formattedDate = selectedTask.due_date
-    ? new Date(selectedTask.due_date).toISOString().split('T')[0] // Convierte a formato YYYY-MM-DD
+    ? new Date(selectedTask.due_date).toISOString().split('T')[0] 
     : '';
 
   // Función para manejar la selección de contactos
@@ -81,6 +80,24 @@ const TaskModal = ({
               />
             </div>
 
+
+            <div>
+                <label htmlFor="priority" className="text-xs font-medium text-gray-700 block mb-1">
+                  Prioridad
+                </label>
+                <select
+                  id="priority"
+                  value={selectedTask.priority}
+                  onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200 outline-none text-sm"
+                >
+                  <option value="baja">Baja</option>
+                  <option value="media">Media</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+              
+
             {/* Selector de contactos asignados */}
             <div>
               <label htmlFor="contact" className="text-xs font-medium text-gray-700 block mb-1">
@@ -88,10 +105,10 @@ const TaskModal = ({
               </label>
               <Select
                 id="contact"
-                isMulti // Permite seleccionar múltiples contactos
+                isMulti 
                 options={contactOptions}
                 value={selectedContacts}
-                onChange={handleContactChange} // Actualiza los contactos seleccionados
+                onChange={handleContactChange} 
                 className="react-select-container"
                 classNamePrefix="react-select"
                 placeholder="Selecciona contactos"

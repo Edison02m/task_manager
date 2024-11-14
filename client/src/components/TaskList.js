@@ -19,14 +19,11 @@ const TaskList = () => {
   const [hoveredContact, setHoveredContact] = useState(null);
 
 
-
   const handleCloseCard = () => {
-    setSelectedContact(null); // Limpiar la selección cuando se cierra la tarjeta
+    setSelectedContact(null);
   };
 
 
-  // Estados para los filtros
-  // Estados para los filtros
   const [priorityFilter, setPriorityFilter] = useState(localStorage.getItem('priorityFilter') || 'todas');
   const [dateFilter, setDateFilter] = useState(localStorage.getItem('dateFilter') || 'todas');
   const [searchTerm, setSearchTerm] = useState(localStorage.getItem('searchTerm') || '');
@@ -89,32 +86,30 @@ const TaskList = () => {
                 ...task,
                 contacts: contacts.map(contact => ({
                   name: contact.name,
-                  email: contact.email, // Otras propiedades del contacto
+                  email: contact.email, 
                   phone: contact.phone,
-                  address: contact.address, // Agregar teléfono u otras propiedades
+                  address: contact.address, 
                 }))
               };
             } catch (error) {
               console.error('Error al obtener los contactos:', error);
-              return task; // Si hay un error, retornar la tarea sin cambios
+              return task; 
             }
           }
-          return task; // Si no hay contactos asociados, retornar la tarea original
+          return task; 
         }));
 
-        // Actualizar el estado con las tareas y los contactos
         setTasks(tasksWithContacts);
       } catch (error) {
         console.error('Error al obtener las tareas:', error);
       } finally {
-        setIsLoading(false); // Marcar como no cargando una vez que los datos hayan sido cargados
+        setIsLoading(false); 
       }
     };
 
-    fetchTasks(); // Llamada a la función solo una vez
+    fetchTasks(); 
 
-  }, []); // El arreglo vacío asegura que solo se ejecute una vez cuando el componente se monta
-
+  }, []); 
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -202,7 +197,7 @@ const TaskList = () => {
 
   const handleSortChange = (event) => {
     setSortOrder(event.target.value);
-    localStorage.setItem('sortOrder', event.target.value); // Guardar el filtro en localStorage
+    localStorage.setItem('sortOrder', event.target.value); 
   };
 
   const handleStatusChange = async (task) => {
@@ -235,25 +230,25 @@ const TaskList = () => {
   const handleContainerClick = (event, task) => {
     // Evitar que se abra el modal si el clic es en el nombre del contacto o el botón de eliminar
     if (
-      event.target.type !== 'checkbox' &&                  // No clic en checkbox
-      !event.target.classList.contains('delete-button') && // No clic en botón de eliminar
-      !event.target.classList.contains('contact-name')    // No clic en el nombre del contacto
+      event.target.type !== 'checkbox' &&                  
+      !event.target.classList.contains('delete-button') && 
+      !event.target.classList.contains('contact-name')   
     ) {
-      setSelectedTask(task); // Establecer la tarea seleccionada
-      setIsModalOpen(true);   // Abrir el modal de edición
+      setSelectedTask(task); 
+      setIsModalOpen(true);   
     }
   };
 
   // Función para manejar clics en el nombre del contacto
   const handleContactClick = (contact, e) => {
-    e.stopPropagation(); // Detener la propagación del clic solo en el nombre del contacto
-    setSelectedContact(contact); // Abrir la tarjeta de detalles del contacto
+    e.stopPropagation(); 
+    setSelectedContact(contact);
   };
 
   // Función para manejar el cierre de la tarjeta de detalles del contacto
   const handleCloseContactDetails = (e) => {
-    e.stopPropagation(); // Detener la propagación del clic cuando se cierra la tarjeta
-    setSelectedContact(null); // Cerrar la tarjeta de detalles
+    e.stopPropagation(); 
+    setSelectedContact(null); 
   };
 
   const handleCloseModal = () => {
@@ -481,74 +476,68 @@ const TaskList = () => {
                           <CalendarIcon className="w-4 h-4 mr-1" />
                           {formatDate(task.due_date)}
                         </span>
-                        
+
                         <div className="flex flex-wrap gap-2 relative">
-  {task.contacts && task.contacts.length > 0 ? (
-    task.contacts
-      .filter(contact => contact && contact.name) // Filtra los contactos que tienen nombre (y por lo tanto son válidos)
-      .map((contact, index) => (
-        <div
-          key={index}
-          className="relative"
-          onClick={(event) => handleContainerClick(event, task)} // Clic en la tarjeta de tarea
-        >
-          <div
-            className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer contact-name"
-            onClick={(e) => handleContactClick(contact, e)} // Clic en el nombre del contacto
-          >
-            {/* Mostrar el ícono solo si el contacto tiene un nombre de usuario */}
-            {(contact.username || contact.name) && (
-              <UserCircleIcon className="h-4 w-4 text-gray-500" />
-            )}
-            <span>{contact.name}</span> {/* Nombre del contacto */}
-          </div>
+                          {task.contacts && task.contacts.length > 0 ? (
+                            task.contacts
+                              .filter(contact => contact && contact.name) 
+                              .map((contact, index) => (
+                                <div
+                                  key={index}
+                                  className="relative"
+                                  onClick={(event) => handleContainerClick(event, task)} 
+                                >
+                                  <div
+                                    className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer contact-name"
+                                    onClick={(e) => handleContactClick(contact, e)} 
+                                  >
+                                    {(contact.username || contact.name) && (
+                                      <UserCircleIcon className="h-4 w-4 text-gray-500" />
+                                    )}
+                                    <span>{contact.name}</span> 
+                                  </div>
 
-          {/* Tooltip de información del contacto */}
-          {hoveredContact &&
-            hoveredContact.taskId === task.id &&
-            hoveredContact.contactIndex === index && (
-              <div className="absolute z-10 w-64 p-4 bg-white rounded-xl shadow-lg text-sm -bottom-2 transform translate-y-full">
-                <p><strong>Nombre:</strong> {contact.name}</p>
-                <p><strong>Email:</strong> {contact.email}</p>
-                <p><strong>Teléfono:</strong> {contact.phone}</p>
-                <p><strong>Dirección:</strong> {contact.address}</p>
-              </div>
-            )}
+                                  {/* Tooltip de información del contacto */}
+                                  {hoveredContact &&
+                                    hoveredContact.taskId === task.id &&
+                                    hoveredContact.contactIndex === index && (
+                                      <div className="absolute z-10 w-64 p-4 bg-white rounded-xl shadow-lg text-sm -bottom-2 transform translate-y-full">
+                                        <p><strong>Nombre:</strong> {contact.name}</p>
+                                        <p><strong>Email:</strong> {contact.email}</p>
+                                        <p><strong>Teléfono:</strong> {contact.phone}</p>
+                                        <p><strong>Dirección:</strong> {contact.address}</p>
+                                      </div>
+                                    )}
 
-          {/* Mostrar la tarjeta de detalles del contacto solo si este es el seleccionado */}
-          {selectedContact === contact && (
-            <div
-              ref={contactDetailsRef}
-              className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-50 w-80 p-6 bg-white rounded-xl shadow-lg text-sm max-w-lg"
-            >
-              <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-                onClick={handleCloseContactDetails} // Cerrar la tarjeta de detalles
-              >
-                <XIcon className="h-5 w-5" />
-              </button>
-              <h3 className="text-xl font-semibold">Detalles del contacto</h3>
-              <p><strong>Nombre:</strong> {contact.name}</p>
-              <p><strong>Email:</strong> {contact.email}</p>
-              <p><strong>Teléfono:</strong> {contact.phone}</p>
-              <p><strong>Dirección:</strong> {contact.address}</p>
-            </div>
-          )}
-        </div>
-      ))
-  ) : (
-    null // Mensaje cuando no hay contactos
-  )}
-</div>
-
-
-
-
-
+                                  {/* Mostrar la tarjeta de detalles del contacto solo si este es el seleccionado */}
+                                  {selectedContact === contact && (
+                                    <div
+                                      ref={contactDetailsRef}
+                                      className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-50 w-80 p-6 bg-white rounded-xl shadow-lg text-sm max-w-lg"
+                                    >
+                                      <button
+                                        className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                                        onClick={handleCloseContactDetails} 
+                                      >
+                                        <XIcon className="h-5 w-5" />
+                                      </button>
+                                      <h3 className="text-xl font-semibold">Detalles del contacto</h3>
+                                      <p><strong>Nombre:</strong> {contact.name}</p>
+                                      <p><strong>Email:</strong> {contact.email}</p>
+                                      <p><strong>Teléfono:</strong> {contact.phone}</p>
+                                      <p><strong>Dirección:</strong> {contact.address}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                          ) : (
+                            null
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Botón eliminar mejorado */}
+                    {/* Botón eliminar */}
                     <button
                       className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200
                         p-2 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
@@ -570,7 +559,7 @@ const TaskList = () => {
           setSelectedTask={setSelectedTask}
           handleCloseModal={handleCloseModal}
           handleTaskUpdate={handleTaskUpdate}
-          allContacts={allContacts} // Pasa los contactos aquí
+          allContacts={allContacts} 
         />
       </div>
     </div>

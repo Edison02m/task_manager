@@ -19,13 +19,12 @@ exports.createTask = async (req, res) => {
         return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento y prioridad son obligatorios' });
       }
   
-      // Si contact_ids está presente, puede ser un array vacío o null
       const newTask = await Task.create({
         title,
         description,
         due_date,
         priority,
-        contact_ids: contact_ids || [],  // Si contact_ids no está presente, asignamos un array vacío
+        contact_ids: contact_ids || [],  
       });
   
       res.status(201).json(newTask);
@@ -45,14 +44,13 @@ exports.createTask = async (req, res) => {
         return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento, prioridad y estado son obligatorios' });
       }
   
-      // Preparar los datos para la actualización (si contact_ids es nulo, se asigna un array vacío)
       const updatedData = {
         title,
         description,
         due_date,
         priority,
         status,
-        contact_ids: contact_ids || [],  // Si contact_ids no está presente, asignamos un array vacío
+        contact_ids: contact_ids || [],  
       };
   
       // Actualización de la tarea
@@ -62,7 +60,7 @@ exports.createTask = async (req, res) => {
         return res.status(404).json({ error: 'Tarea no encontrada' });
       }
   
-      res.status(200).json(updatedTask); // Devolver la tarea actualizada
+      res.status(200).json(updatedTask); 
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Error al actualizar tarea' });

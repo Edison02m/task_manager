@@ -10,7 +10,7 @@ const CreateTaskForm = () => {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('baja');
-  const [selectedContacts, setSelectedContacts] = useState([]); // Usaremos un array para los contactos seleccionados
+  const [selectedContacts, setSelectedContacts] = useState([]); 
   const [contacts, setContacts] = useState([]);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const CreateTaskForm = () => {
     fetchContacts();
   }, []);
 
-  // Convierte los contactos a un formato compatible con React Select
+
   const contactOptions = contacts.map(contact => ({
     value: contact.id,
     label: contact.name
@@ -39,7 +39,7 @@ const CreateTaskForm = () => {
       description,
       dueDate,
       priority,
-      contact_ids: selectedContacts.map(contact => contact.value), // Extraemos los valores (IDs) de los contactos seleccionados
+      contact_ids: selectedContacts.map(contact => contact.value), 
     };
 
     try {
@@ -49,7 +49,7 @@ const CreateTaskForm = () => {
       setDescription('');
       setDueDate('');
       setPriority('baja');
-      setSelectedContacts([]); // Limpiar los contactos seleccionados
+      setSelectedContacts([]); 
     } catch (error) {
       toast.error("Hubo un error al crear la tarea");
     }
@@ -105,7 +105,7 @@ const CreateTaskForm = () => {
               </label>
               <Select
                 id="contact"
-                isMulti // Permite seleccionar múltiples contactos
+                isMulti 
                 options={contactOptions}
                 value={selectedContacts}
                 onChange={setSelectedContacts} // Actualiza los contactos seleccionados
