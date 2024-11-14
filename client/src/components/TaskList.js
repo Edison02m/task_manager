@@ -65,7 +65,7 @@ const TaskList = () => {
 
   useEffect(() => {
     const fetchTasks = async () => {
-      setIsLoading(true); // Establecer isLoading en true cuando comience la carga
+      setIsLoading(true); 
       try {
         // Obtener las tareas
         const response = await fetch('http://localhost:5001/api/tasks');
@@ -75,41 +75,41 @@ const TaskList = () => {
         const tasksWithContacts = await Promise.all(tasksData.map(async (task) => {
           if (task.contact_ids && Array.isArray(task.contact_ids) && task.contact_ids.length > 0) {
             try {
-              // Obtener los contactos asociados a la tarea utilizando contact_ids
+              
               const contactRequests = task.contact_ids.map(contactId =>
                 fetch(`http://localhost:5000/api/contacts/${contactId}`).then(res => res.json())
               );
-              const contacts = await Promise.all(contactRequests); // Esperar a que todas las peticiones de contactos se completen
+              const contacts = await Promise.all(contactRequests); 
 
-              // Devolver la tarea con los datos de los contactos adicionales
               return {
                 ...task,
                 contacts: contacts.map(contact => ({
                   name: contact.name,
-                  email: contact.email, 
+                  email: contact.email,
                   phone: contact.phone,
-                  address: contact.address, 
+                  address: contact.address,
                 }))
               };
             } catch (error) {
               console.error('Error al obtener los contactos:', error);
-              return task; 
+              return task;
             }
           }
-          return task; 
+          return task;
         }));
 
         setTasks(tasksWithContacts);
       } catch (error) {
         console.error('Error al obtener las tareas:', error);
       } finally {
-        setIsLoading(false); 
+        setIsLoading(false);
       }
     };
 
-    fetchTasks(); 
+    fetchTasks();
 
-  }, []); 
+  }, []);
+
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -197,7 +197,7 @@ const TaskList = () => {
 
   const handleSortChange = (event) => {
     setSortOrder(event.target.value);
-    localStorage.setItem('sortOrder', event.target.value); 
+    localStorage.setItem('sortOrder', event.target.value);
   };
 
   const handleStatusChange = async (task) => {
@@ -230,25 +230,25 @@ const TaskList = () => {
   const handleContainerClick = (event, task) => {
     // Evitar que se abra el modal si el clic es en el nombre del contacto o el botón de eliminar
     if (
-      event.target.type !== 'checkbox' &&                  
-      !event.target.classList.contains('delete-button') && 
-      !event.target.classList.contains('contact-name')   
+      event.target.type !== 'checkbox' &&
+      !event.target.classList.contains('delete-button') &&
+      !event.target.classList.contains('contact-name')
     ) {
-      setSelectedTask(task); 
-      setIsModalOpen(true);   
+      setSelectedTask(task);
+      setIsModalOpen(true);
     }
   };
 
   // Función para manejar clics en el nombre del contacto
   const handleContactClick = (contact, e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setSelectedContact(contact);
   };
 
   // Función para manejar el cierre de la tarjeta de detalles del contacto
   const handleCloseContactDetails = (e) => {
-    e.stopPropagation(); 
-    setSelectedContact(null); 
+    e.stopPropagation();
+    setSelectedContact(null);
   };
 
   const handleCloseModal = () => {
@@ -477,57 +477,59 @@ const TaskList = () => {
                           {formatDate(task.due_date)}
                         </span>
 
+      
+
                         <div className="flex flex-wrap gap-2 relative">
                           {task.contacts && task.contacts.length > 0 ? (
                             task.contacts
-                              .filter(contact => contact && contact.name) 
+                              .filter(contact => contact && contact.name)
                               .map((contact, index) => (
                                 <div
                                   key={index}
                                   className="relative"
-                                  onClick={(event) => handleContainerClick(event, task)} 
+                                  onClick={(event) => handleContainerClick(event, task)}
                                 >
                                   <div
                                     className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer contact-name"
-                                    onClick={(e) => handleContactClick(contact, e)} 
+                                    onClick={(e) => handleContactClick(contact, e)}
                                   >
                                     {(contact.username || contact.name) && (
                                       <UserCircleIcon className="h-4 w-4 text-gray-500" />
                                     )}
-                                    <span>{contact.name}</span> 
+                                    <span>{contact.name}</span>
                                   </div>
 
-                                  {/* Tooltip de información del contacto */}
-                                  {hoveredContact &&
-                                    hoveredContact.taskId === task.id &&
-                                    hoveredContact.contactIndex === index && (
-                                      <div className="absolute z-10 w-64 p-4 bg-white rounded-xl shadow-lg text-sm -bottom-2 transform translate-y-full">
-                                        <p><strong>Nombre:</strong> {contact.name}</p>
-                                        <p><strong>Email:</strong> {contact.email}</p>
-                                        <p><strong>Teléfono:</strong> {contact.phone}</p>
-                                        <p><strong>Dirección:</strong> {contact.address}</p>
-                                      </div>
-                                    )}
 
                                   {/* Mostrar la tarjeta de detalles del contacto solo si este es el seleccionado */}
                                   {selectedContact === contact && (
                                     <div
                                       ref={contactDetailsRef}
-                                      className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-50 w-80 p-6 bg-white rounded-xl shadow-lg text-sm max-w-lg"
+                                      className="fixed top-1/3 left-1/2 transform -translate-x-1/2 z-50 w-72 p-4 bg-white rounded-lg shadow-md border border-gray-200"
                                     >
                                       <button
-                                        className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-                                        onClick={handleCloseContactDetails} 
+                                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                                        onClick={handleCloseContactDetails}
                                       >
-                                        <XIcon className="h-5 w-5" />
+                                        <XIcon className="h-4 w-4" />
                                       </button>
-                                      <h3 className="text-xl font-semibold">Detalles del contacto</h3>
-                                      <p><strong>Nombre:</strong> {contact.name}</p>
-                                      <p><strong>Email:</strong> {contact.email}</p>
-                                      <p><strong>Teléfono:</strong> {contact.phone}</p>
-                                      <p><strong>Dirección:</strong> {contact.address}</p>
+                                      <h3 className="text-lg font-semibold text-gray-700 mb-3">Detalles del contacto</h3>
+                                      <div className="space-y-1">
+                                        <p className="text-gray-600 text-sm">
+                                          <strong className="font-medium text-gray-800">Nombre:</strong> {contact.name}
+                                        </p>
+                                        <p className="text-gray-600 text-sm">
+                                          <strong className="font-medium text-gray-800">Email:</strong> {contact.email}
+                                        </p>
+                                        <p className="text-gray-600 text-sm">
+                                          <strong className="font-medium text-gray-800">Teléfono:</strong> {contact.phone}
+                                        </p>
+                                        <p className="text-gray-600 text-sm">
+                                          <strong className="font-medium text-gray-800">Dirección:</strong> {contact.address}
+                                        </p>
+                                      </div>
                                     </div>
                                   )}
+
                                 </div>
                               ))
                           ) : (
@@ -559,7 +561,7 @@ const TaskList = () => {
           setSelectedTask={setSelectedTask}
           handleCloseModal={handleCloseModal}
           handleTaskUpdate={handleTaskUpdate}
-          allContacts={allContacts} 
+          allContacts={allContacts}
         />
       </div>
     </div>

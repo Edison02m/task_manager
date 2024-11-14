@@ -7,7 +7,7 @@ const TaskModal = ({
   setSelectedTask,
   handleCloseModal,
   handleTaskUpdate,
-  allContacts,
+  allContacts, 
 }) => {
   if (!isModalOpen || !selectedTask) return null;
 
@@ -22,20 +22,19 @@ const TaskModal = ({
     setSelectedTask({ ...selectedTask, contact_ids: selectedContacts });
   };
 
-  // Filtrar los contactos que aún existen en la lista de todos los contactos
+
   const contactOptions = allContacts.map((contact) => ({
     value: contact.id,
     label: contact.name,
   }));
 
-  // Filtrar los contactos seleccionados para asegurar que solo se muestren los que siguen existiendo
   const selectedContacts = selectedTask.contact_ids
     ? selectedTask.contact_ids
         .map((contactId) => {
           const contact = allContacts.find((contact) => contact.id === contactId);
           return contact ? { value: contact.id, label: contact.name } : null;
         })
-        .filter(Boolean) // Eliminar los valores null de la lista de contactos no existentes
+        .filter(Boolean) 
     : [];
 
   return (
@@ -98,7 +97,7 @@ const TaskModal = ({
               </div>
               
 
-            {/* Selector de contactos asignados */}
+              
             <div>
               <label htmlFor="contact" className="text-xs font-medium text-gray-700 block mb-1">
                 Asignar a Contactos

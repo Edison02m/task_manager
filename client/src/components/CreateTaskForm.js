@@ -13,6 +13,7 @@ const CreateTaskForm = () => {
   const [selectedContacts, setSelectedContacts] = useState([]); 
   const [contacts, setContacts] = useState([]);
 
+
   useEffect(() => {
     const fetchContacts = async () => {
       try {
@@ -30,6 +31,7 @@ const CreateTaskForm = () => {
     value: contact.id,
     label: contact.name
   }));
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +100,7 @@ const CreateTaskForm = () => {
               />
             </div>
 
-            {/* Selector de múltiples contactos utilizando React Select */}
+          
             <div>
               <label htmlFor="contact" className="text-xs font-medium text-gray-700 block mb-1">
                 Asignar a Contactos
@@ -108,7 +110,7 @@ const CreateTaskForm = () => {
                 isMulti 
                 options={contactOptions}
                 value={selectedContacts}
-                onChange={setSelectedContacts} // Actualiza los contactos seleccionados
+                onChange={setSelectedContacts} 
                 className="react-select-container"
                 classNamePrefix="react-select"
                 placeholder="Selecciona contactos"
