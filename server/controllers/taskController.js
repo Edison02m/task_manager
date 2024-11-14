@@ -12,81 +12,63 @@ exports.getAllTasks = async (req, res) => {
 
 exports.createTask = async (req, res) => {
     try {
-        const { title, description, due_date, priority, contact_id } = req.body;
-
-        // Validación de datos
-        if (!title || !description || !due_date || !priority) {
-            return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento y prioridad son obligatorios' });
-        }
-
-        // Si contact_id está presente, puede ser null, si no está presente, se permite.
-        const newTask = await Task.create({
-            title,
-            description,
-            due_date,
-            priority,
-            contact_id: contact_id || null,  // Si contact_id no está presente, asignamos null
-        });
-
-        res.status(201).json(newTask);
+      const { title, description, due_date, priority, contact_ids } = req.body;
+  
+      // Validación de datos
+      if (!title || !description || !due_date || !priority) {
+        return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento y prioridad son obligatorios' });
+      }
+  
+      // Si contact_ids está presente, puede ser un array vacío o null
+      const newTask = await Task.create({
+        title,
+        description,
+        due_date,
+        priority,
+        contact_ids: contact_ids || [],  // Si contact_ids no está presente, asignamos un array vacío
+      });
+  
+      res.status(201).json(newTask);
     } catch (error) {
-        console.error(error);  // Muestra el error en la consola para depuración
-        res.status(500).json({ error: 'Error al crear tarea' });
+      console.error(error);
+      res.status(500).json({ error: 'Error al crear tarea' });
     }
-};
+  };
+  
 
-
-// Controlador para obtener tareas por contacto
-exports.getTasksByContact = async (req, res) => {
-    const { contact_id } = req.params; // Obtener el contact_id desde los parámetros de la URL
-    
+  exports.updateTask = async (req, res) => {
     try {
-        const tasks = await Task.getTasksByContact(contact_id);  // Usar el método del modelo para obtener tareas
-        
-        if (tasks.length === 0) {
-            return res.status(404).json({ message: 'No se encontraron tareas para este contacto' });
-        }
-        
-        // Si se encuentran tareas, enviarlas como respuesta
-        res.status(200).json(tasks);
+      const { title, description, due_date, priority, status, contact_ids } = req.body;
+  
+      // Validación de campos
+      if (!title || !description || !due_date || !priority || !status) {
+        return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento, prioridad y estado son obligatorios' });
+      }
+  
+      // Preparar los datos para la actualización (si contact_ids es nulo, se asigna un array vacío)
+      const updatedData = {
+        title,
+        description,
+        due_date,
+        priority,
+        status,
+        contact_ids: contact_ids || [],  // Si contact_ids no está presente, asignamos un array vacío
+      };
+  
+      // Actualización de la tarea
+      const updatedTask = await Task.update(req.params.id, updatedData);
+  
+      if (!updatedTask) {
+        return res.status(404).json({ error: 'Tarea no encontrada' });
+      }
+  
+      res.status(200).json(updatedTask); // Devolver la tarea actualizada
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener tareas por contacto' });
+      console.error(error);
+      res.status(500).json({ error: 'Error al actualizar tarea' });
     }
-};
-
-exports.updateTask = async (req, res) => {
-    try {
-        const { title, description, due_date, priority, status, contact_id } = req.body;
-
-        // Validación de campos
-        if (!title || !description || !due_date || !priority || !status) {
-            return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento, prioridad y estado son obligatorios' });
-        }
-
-        // Preparar los datos para la actualización (si contact_id es nulo, se asigna null)
-        const updatedData = {
-            title,
-            description,
-            due_date,
-            priority,
-            status,
-            contact_id: contact_id || null,  // Si contact_id no está presente, asignamos null
-        };
-
-        // Actualización de la tarea
-        const updatedTask = await Task.update(req.params.id, updatedData);
-
-        if (!updatedTask) {
-            return res.status(404).json({ error: 'Tarea no encontrada' });
-        }
-
-        res.status(200).json(updatedTask); // Devolver la tarea actualizada
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al actualizar tarea' });
-    }
-};
+  };
+  
 
 
 exports.updateTaskStatus = async (req, res) => {
@@ -108,13 +90,14 @@ exports.deleteTask = async (req, res) => {
     }
 };
 
-
+/*
 exports.getContacts = async (req, res) => {
     try {
-        const response = await axios.get('http://localhost:5000/api/contacts'); // URL de la API de contactos
+        const response = await axios.get('http://localhost:5000/api/contacts');
         res.status(200).json(response.data);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener contactos' });
     }
-};
+};*/
+

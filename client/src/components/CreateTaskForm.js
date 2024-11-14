@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createTask } from '../services/taskService';
 import { getContacts } from '../services/contactService';
+import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -9,7 +10,7 @@ const CreateTaskForm = () => {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('baja');
-  const [contactId, setContactId] = useState('');
+  const [selectedContacts, setSelectedContacts] = useState([]); // Usaremos un array para los contactos seleccionados
   const [contacts, setContacts] = useState([]);
 
   useEffect(() => {
@@ -24,17 +25,23 @@ const CreateTaskForm = () => {
     fetchContacts();
   }, []);
 
+  // Convierte los contactos a un formato compatible con React Select
+  const contactOptions = contacts.map(contact => ({
+    value: contact.id,
+    label: contact.name
+  }));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const taskData = {
       title,
       description,
       dueDate,
       priority,
-      contact_id: contactId || null, // Si contactId es vacío, pasar null
+      contact_ids: selectedContacts.map(contact => contact.value), // Extraemos los valores (IDs) de los contactos seleccionados
     };
-  
+
     try {
       await createTask(taskData);
       toast.success("¡Tarea creada exitosamente!");
@@ -42,17 +49,16 @@ const CreateTaskForm = () => {
       setDescription('');
       setDueDate('');
       setPriority('baja');
-      setContactId('');
+      setSelectedContacts([]); // Limpiar los contactos seleccionados
     } catch (error) {
       toast.error("Hubo un error al crear la tarea");
     }
   };
-  
 
   return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full max-w-2xl p-4">
-        <form 
+        <form
           onSubmit={handleSubmit}
           className="bg-white rounded-xl shadow-md p-6 space-y-1 border border-gray-100"
         >
@@ -92,25 +98,22 @@ const CreateTaskForm = () => {
               />
             </div>
 
+            {/* Selector de múltiples contactos utilizando React Select */}
             <div>
-  <label htmlFor="contact" className="text-xs font-medium text-gray-700 block mb-1">
-    Asignar a Contacto
-  </label>
-  <select
-    id="contact"
-    value={contactId || ""}
-    onChange={(e) => setContactId(e.target.value)}
-    className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200 outline-none text-sm"
-  >
-    <option value="">Selecciona un contacto</option>
-    {contacts.map(contact => (
-      <option key={contact.id} value={contact.id}>
-        {contact.name}
-      </option>
-    ))}
-  </select>
-</div>
-
+              <label htmlFor="contact" className="text-xs font-medium text-gray-700 block mb-1">
+                Asignar a Contactos
+              </label>
+              <Select
+                id="contact"
+                isMulti // Permite seleccionar múltiples contactos
+                options={contactOptions}
+                value={selectedContacts}
+                onChange={setSelectedContacts} // Actualiza los contactos seleccionados
+                className="react-select-container"
+                classNamePrefix="react-select"
+                placeholder="Selecciona contactos"
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

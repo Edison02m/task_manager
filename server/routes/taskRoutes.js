@@ -18,12 +18,9 @@ router.patch('/:id', taskController.updateTaskStatus);
 // Ruta para eliminar una tarea
 router.delete('/:id', taskController.deleteTask);
 
-// Ruta para obtener tareas de un contacto específico
-router.get('/contact/:contact_id', taskController.getTasksByContact);
-
 
 // Nueva ruta para obtener contactos
-router.get('/contacts', taskController.getContacts);
+//router.get('/contacts', taskController.getContacts);
 
 
 module.exports = router;

@@ -1,12 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 
-const TaskModal = ({ isModalOpen, selectedTask, setSelectedTask, handleCloseModal, handleTaskUpdate, allContacts }) => {
+const TaskModal = ({
+  isModalOpen,
+  selectedTask,
+  setSelectedTask,
+  handleCloseModal,
+  handleTaskUpdate,
+  allContacts,
+}) => {
   if (!isModalOpen || !selectedTask) return null;
 
   // Asegurarse de que la fecha esté en el formato correcto (YYYY-MM-DD)
   const formattedDate = selectedTask.due_date
     ? new Date(selectedTask.due_date).toISOString().split('T')[0] // Convierte a formato YYYY-MM-DD
     : '';
+
+  // Función para manejar la selección de contactos
+  const handleContactChange = (selectedOptions) => {
+    // Convertir las opciones seleccionadas a un array de ids de contactos
+    const selectedContacts = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+    setSelectedTask({ ...selectedTask, contact_ids: selectedContacts });
+  };
+
+  // Filtrar los contactos que aún existen en la lista de todos los contactos
+  const contactOptions = allContacts.map((contact) => ({
+    value: contact.id,
+    label: contact.name,
+  }));
+
+  // Filtrar los contactos seleccionados para asegurar que solo se muestren los que siguen existiendo
+  const selectedContacts = selectedTask.contact_ids
+    ? selectedTask.contact_ids
+        .map((contactId) => {
+          const contact = allContacts.find((contact) => contact.id === contactId);
+          return contact ? { value: contact.id, label: contact.name } : null;
+        })
+        .filter(Boolean) // Eliminar los valores null de la lista de contactos no existentes
+    : [];
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 backdrop-blur-sm p-4">
@@ -50,48 +81,21 @@ const TaskModal = ({ isModalOpen, selectedTask, setSelectedTask, handleCloseModa
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">Prioridad</label>
-                <select
-                  value={selectedTask.priority}
-                  onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
-                >
-                  <option value="alta">Alta</option>
-                  <option value="media">Media</option>
-                  <option value="baja">Baja</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">Estado</label>
-                <select
-                  value={selectedTask.status}
-                  onChange={(e) => setSelectedTask({ ...selectedTask, status: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
-                >
-                  <option value="Por hacer">Por hacer</option>
-                  <option value="Hecho">Hecho</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Selector de contacto asignado */}
+            {/* Selector de contactos asignados */}
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">Contacto Asignado</label>
-              <select
-                value={selectedTask.contact_id || ''}
-                onChange={(e) => setSelectedTask({ ...selectedTask, contact_id: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none"
-              >
-                <option value="">Selecciona un contacto</option>
-                {allContacts.map((contact) => (
-                  <option key={contact.id} value={contact.id}>
-                    {contact.name}
-                  </option>
-                ))}
-              </select>
+              <label htmlFor="contact" className="text-xs font-medium text-gray-700 block mb-1">
+                Asignar a Contactos
+              </label>
+              <Select
+                id="contact"
+                isMulti // Permite seleccionar múltiples contactos
+                options={contactOptions}
+                value={selectedContacts}
+                onChange={handleContactChange} // Actualiza los contactos seleccionados
+                className="react-select-container"
+                classNamePrefix="react-select"
+                placeholder="Selecciona contactos"
+              />
             </div>
           </div>
 

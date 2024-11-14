@@ -18,15 +18,15 @@ export const createTask = async (taskData) => {
   try {
     // Crear un objeto de datos con las propiedades requeridas
     const taskPayload = {
-      title: taskData.title, 
-      description: taskData.description, 
-      due_date: taskData.dueDate, 
+      title: taskData.title,
+      description: taskData.description,
+      due_date: taskData.dueDate,
       priority: taskData.priority,
     };
 
-    // Solo agregar contact_id si está presente
-    if (taskData.contact_id) {
-      taskPayload.contact_id = taskData.contact_id;
+    // Solo agregar contact_ids si están presentes
+    if (taskData.contact_ids && taskData.contact_ids.length > 0) {
+      taskPayload.contact_ids = taskData.contact_ids; // Usamos el arreglo de contact_ids
     }
 
     // Enviar la solicitud POST
@@ -48,6 +48,7 @@ export const createTask = async (taskData) => {
     throw error;
   }
 };
+
 
 
 
@@ -131,13 +132,4 @@ export const updateTask = async (id, updatedTask) => {
 };
 
 
-export const getTasksByContact = async (contactId) => {
-  try {
-      const response = await fetch(`http://localhost:5000/api/tasks/contact/${contactId}`);
-      if (!response.ok) throw new Error('Error al obtener tareas del contacto');
-      return await response.json();
-  } catch (error) {
-      console.error(error);
-      throw error;
-  }
-};
+

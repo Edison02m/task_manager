@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { getTasks, updateTaskStatus, updateTask, deleteTask } from '../services/taskService';
 import TaskModal from '../components/Modal';
 import { TrashIcon } from '@heroicons/react/outline';
 import { toast } from 'react-toastify';
 import Header from './Header';
 import { UserCircleIcon, CalendarIcon } from 'lucide-react';
+import { XIcon } from '@heroicons/react/solid';
+
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -14,6 +16,15 @@ const TaskList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [allContacts, setAllContacts] = useState([]);
+  const [hoveredContact, setHoveredContact] = useState(null);
+
+
+
+  const handleCloseCard = () => {
+    setSelectedContact(null); // Limpiar la selección cuando se cierra la tarjeta
+  };
+
+
   // Estados para los filtros
   // Estados para los filtros
   const [priorityFilter, setPriorityFilter] = useState(localStorage.getItem('priorityFilter') || 'todas');
@@ -35,8 +46,27 @@ const TaskList = () => {
     setHoveredTaskId(null); // Restablecer el estado cuando el hover se quita
   };
 
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const contactDetailsRef = useRef(null);
+
   useEffect(() => {
-    // Esta función se ejecutará cada vez que accedas a la ventana de tareas
+    // Cerrar la tarjeta si el usuario hace clic fuera de ella
+    const handleClickOutside = (event) => {
+      if (contactDetailsRef.current && !contactDetailsRef.current.contains(event.target)) {
+        setSelectedContact(null);  // Cerrar la tarjeta
+      }
+    };
+
+    // Agregar el evento de clic fuera
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+
+  useEffect(() => {
     const fetchTasks = async () => {
       setIsLoading(true); // Establecer isLoading en true cuando comience la carga
       try {
@@ -44,28 +74,32 @@ const TaskList = () => {
         const response = await fetch('http://localhost:5001/api/tasks');
         const tasksData = await response.json();
 
-        // Obtener el contacto asociado a cada tarea
+        // Obtener los contactos asociados a cada tarea
         const tasksWithContacts = await Promise.all(tasksData.map(async (task) => {
-          if (task.contact_id) {
+          if (task.contact_ids && Array.isArray(task.contact_ids) && task.contact_ids.length > 0) {
             try {
-              // Obtener el contacto por su ID
-              const contactResponse = await fetch(`http://localhost:5000/api/contacts/${task.contact_id}`);
-              const contact = await contactResponse.json();
+              // Obtener los contactos asociados a la tarea utilizando contact_ids
+              const contactRequests = task.contact_ids.map(contactId =>
+                fetch(`http://localhost:5000/api/contacts/${contactId}`).then(res => res.json())
+              );
+              const contacts = await Promise.all(contactRequests); // Esperar a que todas las peticiones de contactos se completen
 
-              // Devolver la tarea con los datos del contacto adicionales
+              // Devolver la tarea con los datos de los contactos adicionales
               return {
                 ...task,
-                contact_name: contact.name,
-                contact_email: contact.email, // Otras propiedades del contacto
-                contact_phone: contact.phone,
-                contact_address: contact.address, // Agregar teléfono u otras propiedades
+                contacts: contacts.map(contact => ({
+                  name: contact.name,
+                  email: contact.email, // Otras propiedades del contacto
+                  phone: contact.phone,
+                  address: contact.address, // Agregar teléfono u otras propiedades
+                }))
               };
             } catch (error) {
-              console.error('Error al obtener el contacto:', error);
+              console.error('Error al obtener los contactos:', error);
               return task; // Si hay un error, retornar la tarea sin cambios
             }
           }
-          return task; // Si no hay un contacto, retornar la tarea original
+          return task; // Si no hay contactos asociados, retornar la tarea original
         }));
 
         // Actualizar el estado con las tareas y los contactos
@@ -77,8 +111,10 @@ const TaskList = () => {
       }
     };
 
-    fetchTasks();
-  }, []); // Solo se ejecuta una vez al montar el componente
+    fetchTasks(); // Llamada a la función solo una vez
+
+  }, []); // El arreglo vacío asegura que solo se ejecute una vez cuando el componente se monta
+
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -195,11 +231,29 @@ const TaskList = () => {
     setIsModalOpen(true);
   };
 
+  /// Función para manejar clics en el contenedor de la tarea
   const handleContainerClick = (event, task) => {
-    if (event.target.type !== 'checkbox' && !event.target.classList.contains('delete-button')) {
-      setSelectedTask(task);
-      setIsModalOpen(true);
+    // Evitar que se abra el modal si el clic es en el nombre del contacto o el botón de eliminar
+    if (
+      event.target.type !== 'checkbox' &&                  // No clic en checkbox
+      !event.target.classList.contains('delete-button') && // No clic en botón de eliminar
+      !event.target.classList.contains('contact-name')    // No clic en el nombre del contacto
+    ) {
+      setSelectedTask(task); // Establecer la tarea seleccionada
+      setIsModalOpen(true);   // Abrir el modal de edición
     }
+  };
+
+  // Función para manejar clics en el nombre del contacto
+  const handleContactClick = (contact, e) => {
+    e.stopPropagation(); // Detener la propagación del clic solo en el nombre del contacto
+    setSelectedContact(contact); // Abrir la tarjeta de detalles del contacto
+  };
+
+  // Función para manejar el cierre de la tarjeta de detalles del contacto
+  const handleCloseContactDetails = (e) => {
+    e.stopPropagation(); // Detener la propagación del clic cuando se cierra la tarjeta
+    setSelectedContact(null); // Cerrar la tarjeta de detalles
   };
 
   const handleCloseModal = () => {
@@ -280,8 +334,6 @@ const TaskList = () => {
     localStorage.setItem('searchTerm', event.target.value); // Guardar el término de búsqueda en localStorage
   };
 
-
-  // ... (mantener el resto de las funciones existentes sin cambios)
 
   if (isLoading) {
     return (
@@ -429,30 +481,69 @@ const TaskList = () => {
                           <CalendarIcon className="w-4 h-4 mr-1" />
                           {formatDate(task.due_date)}
                         </span>
-
-                        <div className="relative group">
-      {/* Contacto asignado */}
-      {task.contact_id && task.contact_name && (
+                        
+                        <div className="flex flex-wrap gap-2 relative">
+  {task.contacts && task.contacts.length > 0 ? (
+    task.contacts
+      .filter(contact => contact && contact.name) // Filtra los contactos que tienen nombre (y por lo tanto son válidos)
+      .map((contact, index) => (
         <div
-          className="flex items-center gap-2 text-sm text-gray-600"
-          onMouseEnter={() => handleMouseEnter(task.id)} // Pasar el ID de la tarea al entrar el mouse
-          onMouseLeave={handleMouseLeave}
+          key={index}
+          className="relative"
+          onClick={(event) => handleContainerClick(event, task)} // Clic en la tarjeta de tarea
         >
-          <UserCircleIcon className="h-5 w-5 text-gray-500" />
-          <span>{task.contact_name}</span>
-        </div>
-      )}
+          <div
+            className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer contact-name"
+            onClick={(e) => handleContactClick(contact, e)} // Clic en el nombre del contacto
+          >
+            {/* Mostrar el ícono solo si el contacto tiene un nombre de usuario */}
+            {(contact.username || contact.name) && (
+              <UserCircleIcon className="h-4 w-4 text-gray-500" />
+            )}
+            <span>{contact.name}</span> {/* Nombre del contacto */}
+          </div>
 
-      {/* Mostrar la tarjeta de información del contacto solo cuando esté en hover */}
-      {hoveredTaskId === task.id && task.contact_name && (
-        <div className="absolute w-64 -bottom-2 bg-white p-4 shadow-lg rounded-xl z-10 transform translate-x-40 text-sm">
-          <p><strong>Nombre:</strong> {task.contact_name}</p>
-          <p><strong>Email:</strong> {task.contact_email}</p>
-          <p><strong>Teléfono:</strong> {task.contact_phone}</p>
-          <p><strong>Dirección:</strong> {task.contact_address}</p>
+          {/* Tooltip de información del contacto */}
+          {hoveredContact &&
+            hoveredContact.taskId === task.id &&
+            hoveredContact.contactIndex === index && (
+              <div className="absolute z-10 w-64 p-4 bg-white rounded-xl shadow-lg text-sm -bottom-2 transform translate-y-full">
+                <p><strong>Nombre:</strong> {contact.name}</p>
+                <p><strong>Email:</strong> {contact.email}</p>
+                <p><strong>Teléfono:</strong> {contact.phone}</p>
+                <p><strong>Dirección:</strong> {contact.address}</p>
+              </div>
+            )}
+
+          {/* Mostrar la tarjeta de detalles del contacto solo si este es el seleccionado */}
+          {selectedContact === contact && (
+            <div
+              ref={contactDetailsRef}
+              className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-50 w-80 p-6 bg-white rounded-xl shadow-lg text-sm max-w-lg"
+            >
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                onClick={handleCloseContactDetails} // Cerrar la tarjeta de detalles
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+              <h3 className="text-xl font-semibold">Detalles del contacto</h3>
+              <p><strong>Nombre:</strong> {contact.name}</p>
+              <p><strong>Email:</strong> {contact.email}</p>
+              <p><strong>Teléfono:</strong> {contact.phone}</p>
+              <p><strong>Dirección:</strong> {contact.address}</p>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      ))
+  ) : (
+    null // Mensaje cuando no hay contactos
+  )}
+</div>
+
+
+
+
 
                       </div>
                     </div>
