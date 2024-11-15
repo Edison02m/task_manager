@@ -17,7 +17,7 @@ const TaskModal = ({
 
   // Función para manejar la selección de contactos
   const handleContactChange = (selectedOptions) => {
-    // Convertir las opciones seleccionadas a un array de ids de contactos
+
     const selectedContacts = selectedOptions ? selectedOptions.map((option) => option.value) : [];
     setSelectedTask({ ...selectedTask, contact_ids: selectedContacts });
   };

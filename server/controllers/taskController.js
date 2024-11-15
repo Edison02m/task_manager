@@ -14,7 +14,6 @@ exports.createTask = async (req, res) => {
     try {
       const { title, description, due_date, priority, contact_ids } = req.body;
   
-      // Validación de datos
       if (!title || !description || !due_date || !priority) {
         return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento y prioridad son obligatorios' });
       }
@@ -39,7 +38,6 @@ exports.createTask = async (req, res) => {
     try {
       const { title, description, due_date, priority, status, contact_ids } = req.body;
   
-      // Validación de campos
       if (!title || !description || !due_date || !priority || !status) {
         return res.status(400).json({ error: 'Los campos título, descripción, fecha de vencimiento, prioridad y estado son obligatorios' });
       }
@@ -53,7 +51,6 @@ exports.createTask = async (req, res) => {
         contact_ids: contact_ids || [],  
       };
   
-      // Actualización de la tarea
       const updatedTask = await Task.update(req.params.id, updatedData);
   
       if (!updatedTask) {
@@ -71,7 +68,7 @@ exports.createTask = async (req, res) => {
 
 exports.updateTaskStatus = async (req, res) => {
     try {
-        const { status } = req.body; // Recibir el nuevo estado
+        const { status } = req.body;
         const updatedTask = await Task.updateStatus(req.params.id, status);
         res.status(200).json(updatedTask);
     } catch (error) {

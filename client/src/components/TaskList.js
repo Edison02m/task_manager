@@ -67,11 +67,9 @@ const TaskList = () => {
     const fetchTasks = async () => {
       setIsLoading(true); 
       try {
-        // Obtener las tareas
         const response = await fetch('http://localhost:5001/api/tasks');
         const tasksData = await response.json();
 
-        // Obtener los contactos asociados a cada tarea
         const tasksWithContacts = await Promise.all(tasksData.map(async (task) => {
           if (task.contact_ids && Array.isArray(task.contact_ids) && task.contact_ids.length > 0) {
             try {
@@ -478,7 +476,7 @@ const TaskList = () => {
                         </span>
 
       
-
+                        {/* Contactos */}
                         <div className="flex flex-wrap gap-2 relative">
                           {task.contacts && task.contacts.length > 0 ? (
                             task.contacts
@@ -500,7 +498,7 @@ const TaskList = () => {
                                   </div>
 
 
-                                  {/* Mostrar la tarjeta de detalles del contacto solo si este es el seleccionado */}
+                                  {/* Tarjeta de contactos */}
                                   {selectedContact === contact && (
                                     <div
                                       ref={contactDetailsRef}
